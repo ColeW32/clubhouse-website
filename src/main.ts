@@ -11,8 +11,12 @@ const heroEl = document.getElementById('hero')!
 const rampWindow = document.getElementById('window-ramp')!
 const dropWindow = document.getElementById('window-drop')!
 
+// The engage section counts as "on show" once the hero sheet has lifted away.
+const isRevealed = (): boolean =>
+  heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.25
+
 const hero = initHero(heroEl, isReduced)
-const ramp = initRamp(rampWindow, isReduced)
+const ramp = initRamp(rampWindow, isReduced, isRevealed)
 const drop = initDrop(dropWindow, isReduced)
 
 reducedQuery.addEventListener('change', () => {
@@ -43,11 +47,9 @@ window.addEventListener(
     // from load, so only count scrolls once the hero sheet has lifted away.
     // When the hero slides back over it (scrolling home), reset the scene
     // behind the opaque sheet so the next reveal replays.
-    const heroBottom = heroEl.getBoundingClientRect().bottom
-    const vh = window.innerHeight
-    if (down && heroBottom < vh * 0.25) {
+    if (down && isRevealed()) {
       ramp.onScrollDown()
-    } else if (heroBottom > vh * 0.9) {
+    } else if (heroEl.getBoundingClientRect().bottom > window.innerHeight * 0.9) {
       ramp.onCovered()
     }
   },
