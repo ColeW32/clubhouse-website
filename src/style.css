@@ -219,13 +219,13 @@ h2 {
 
 .scene-stroke {
   fill: none;
-  stroke: var(--line);
+  stroke: var(--house);
   stroke-width: 2.75;
 }
 
 .scene-solid {
   fill: var(--window-bg);
-  stroke: var(--line);
+  stroke: var(--house);
   stroke-width: 2.75;
 }
 
