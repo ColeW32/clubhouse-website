@@ -26,12 +26,13 @@ type Mode = 'idle' | 'slam' | 'roll' | 'done'
 
 export interface RampScene {
   onScrollDown(): void
+  onCovered(): void
   setReduced(reduced: boolean): void
 }
 
 export function initRamp(windowEl: HTMLElement, isReduced: () => boolean): RampScene {
   const wedge = windowEl.querySelector<SVGGElement>('[data-wedge]')!
-  const ball = windowEl.querySelector<SVGCircleElement>('[data-ball]')!
+  const ball = windowEl.querySelector<SVGGElement>('[data-ball]')!
 
   let mode: Mode = 'idle'
   let armed = false
@@ -40,8 +41,11 @@ export function initRamp(windowEl: HTMLElement, isReduced: () => boolean): RampS
   let v = 0
 
   const setBall = (sc: number): void => {
-    ball.setAttribute('cx', String(CONTACT.x + UPHILL.x * sc + OUT.x * R))
-    ball.setAttribute('cy', String(CONTACT.y + UPHILL.y * sc + OUT.y * R))
+    const x = CONTACT.x + UPHILL.x * sc + OUT.x * R
+    const y = CONTACT.y + UPHILL.y * sc + OUT.y * R
+    // rolling without slipping: arc length / radius, downhill-left = CCW
+    const deg = (sc / R) * (180 / Math.PI)
+    ball.setAttribute('transform', `translate(${x} ${y}) rotate(${deg})`)
   }
 
   const setWedge = (k: number): void => {
@@ -100,6 +104,12 @@ export function initRamp(windowEl: HTMLElement, isReduced: () => boolean): RampS
         mode = 'slam'
         t = 0
       }
+    },
+    // Under the fold the window never exits the viewport at the top of the
+    // page — it just gets re-covered by the hero sheet. Reset behind it so
+    // the next reveal shows the chocked pose again.
+    onCovered() {
+      if (mode !== 'idle') reset()
     },
     // Either way the right static pose is the chocked start.
     setReduced() {

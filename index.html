@@ -3,38 +3,86 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Clubhouse</title>
-    <meta name="description" content="Engage audiences across our digital portfolio." />
+    <title>Clubhouse Media</title>
+    <meta name="description" content="High quality audiences that help you redefine ROAS." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2ecdf'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23b3bfce' stroke-width='2.5'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700;900&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <h1 class="sr-only">Clubhouse</h1>
+    <!-- Shared defs: the disco ball (straight-on globe graticule) and the hero ball clip. -->
+    <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <g id="disco-ball">
+          <circle class="disco-shell" r="100" />
+          <line class="disco-line" x1="-69.4" y1="-72" x2="69.4" y2="-72" />
+          <line class="disco-line" x1="-91.65" y1="-40" x2="91.65" y2="-40" />
+          <line class="disco-line" x1="-100" y1="0" x2="100" y2="0" />
+          <line class="disco-line" x1="-91.65" y1="40" x2="91.65" y2="40" />
+          <line class="disco-line" x1="-69.4" y1="72" x2="69.4" y2="72" />
+          <line class="disco-line" x1="0" y1="-100" x2="0" y2="100" />
+          <ellipse class="disco-line" rx="66" ry="100" />
+          <ellipse class="disco-line" rx="33" ry="100" />
+        </g>
+        <clipPath id="hero-ball-clip">
+          <rect x="-20" y="-20" width="680" height="430" />
+        </clipPath>
+      </defs>
+    </svg>
+
+    <h1 class="sr-only">Clubhouse Media</h1>
     <main>
-      <section class="panel" id="portfolio">
-        <div class="panel__inner">
-          <div class="panel__copy">
-            <h2>Engage audiences<br />across our digital<br />portfolio.</h2>
-            <p>with millions of users on our owned-and-operated apps and websites.</p>
-          </div>
-          <div class="window" id="window-ramp" aria-hidden="true">
-            <div class="window__layer">
-              <svg viewBox="0 0 600 460">
-                <g transform="translate(500 263.333) rotate(-18.435)">
-                  <g data-wedge>
-                    <polygon class="scene-solid" points="-121,0 -57,0 -89,-64" />
-                  </g>
+      <div class="fold">
+        <section class="hero" id="hero">
+          <div class="hero__lockup">
+            <svg class="hero__logo" viewBox="0 0 640 560" role="img" aria-label="Clubhouse Media">
+              <path class="hero__house" d="M 210 330 L 210 242 L 320 125 L 430 242 L 430 330" />
+              <path class="hero__arch" d="M 265 330 L 265 245 A 55 55 0 0 1 375 245 L 375 330" />
+              <g data-hero-string>
+                <line class="hero__string" x1="320" y1="197" x2="320" y2="226" />
+              </g>
+              <g clip-path="url(#hero-ball-clip)">
+                <g data-hero-ball>
+                  <use href="#disco-ball" transform="translate(320 255) scale(0.3)" />
                 </g>
-                <polygon class="scene-mask" points="-100,463.33 700,196.67 700,620 -100,620" />
-                <line class="scene-stroke" x1="-80" y1="456.67" x2="680" y2="203.33" />
-                <circle data-ball class="scene-solid" cx="470.28" cy="174.16" r="94" />
-              </svg>
-            </div>
+              </g>
+              <text class="hero__wordmark" x="322" y="418">CLUBHOUSE</text>
+              <line class="hero__rule" x1="150" y1="454" x2="240" y2="454" />
+              <line class="hero__rule" x1="400" y1="454" x2="490" y2="454" />
+              <text class="hero__media" x="326" y="462">MEDIA</text>
+            </svg>
+            <p class="hero__tagline">High quality audiences that help you redefine ROAS.</p>
           </div>
+        </section>
+
+        <div class="fold__under">
+          <section class="panel" id="portfolio">
+            <div class="panel__inner">
+              <div class="panel__copy">
+                <h2>Engage audiences <br />across our digital <br />portfolio.</h2>
+                <p>with millions of users on our owned-and-operated apps and websites.</p>
+              </div>
+              <div class="window" id="window-ramp" aria-hidden="true">
+                <div class="window__layer">
+                  <svg viewBox="0 0 600 460">
+                    <g transform="translate(500 263.333) rotate(-18.435)">
+                      <g data-wedge>
+                        <polygon class="scene-solid" points="-121,0 -57,0 -89,-64" />
+                      </g>
+                    </g>
+                    <polygon class="scene-mask" points="-100,463.33 700,196.67 700,620 -100,620" />
+                    <line class="scene-stroke" x1="-80" y1="456.67" x2="680" y2="203.33" />
+                    <g data-ball transform="translate(470.28 174.16)">
+                      <use href="#disco-ball" transform="scale(0.94)" />
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
       <section class="panel panel--flip" id="quality">
         <div class="panel__inner">
@@ -44,13 +92,13 @@
                 <line class="scene-stroke" x1="302" y1="283" x2="233" y2="510" />
                 <line class="scene-stroke" x1="302" y1="283" x2="355" y2="510" />
                 <g data-ball transform="translate(302 189)">
-                  <circle class="scene-solid" cx="0" cy="0" r="94" />
+                  <use href="#disco-ball" transform="scale(0.94)" />
                 </g>
               </svg>
             </div>
           </div>
           <div class="panel__copy">
-            <h2>Stop balancing quality.<br />You can have it all.</h2>
+            <h2>Stop balancing quality. <br />You can have it all.</h2>
             <p>Clubhouse matches your offer to users likely to convert using proprietary machine learning.</p>
           </div>
         </div>

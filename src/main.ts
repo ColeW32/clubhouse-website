@@ -2,17 +2,21 @@ import './style.css'
 import { addTick, startTicker } from './ticker'
 import { initRamp } from './ramp'
 import { initDrop } from './drop'
+import { initHero } from './hero'
 
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)')
 const isReduced = (): boolean => reducedQuery.matches
 
+const heroEl = document.getElementById('hero')!
 const rampWindow = document.getElementById('window-ramp')!
 const dropWindow = document.getElementById('window-drop')!
 
+const hero = initHero(heroEl, isReduced)
 const ramp = initRamp(rampWindow, isReduced)
 const drop = initDrop(dropWindow, isReduced)
 
 reducedQuery.addEventListener('change', () => {
+  hero.setReduced(isReduced())
   ramp.setReduced(isReduced())
   drop.setReduced(isReduced())
 })
@@ -35,7 +39,17 @@ window.addEventListener(
       sawFirstScroll = true
       if (performance.now() - loadedAt < 500) return
     }
-    if (down) ramp.onScrollDown()
+    // The ramp window sits beneath the hero fold and intersects the viewport
+    // from load, so only count scrolls once the hero sheet has lifted away.
+    // When the hero slides back over it (scrolling home), reset the scene
+    // behind the opaque sheet so the next reveal replays.
+    const heroBottom = heroEl.getBoundingClientRect().bottom
+    const vh = window.innerHeight
+    if (down && heroBottom < vh * 0.25) {
+      ramp.onScrollDown()
+    } else if (heroBottom > vh * 0.9) {
+      ramp.onCovered()
+    }
   },
   { passive: true },
 )
