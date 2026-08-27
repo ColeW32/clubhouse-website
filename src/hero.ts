@@ -26,9 +26,13 @@ export interface HeroScene {
   setReduced(reduced: boolean): void
 }
 
+const TYPE_MS = 32 // per character of the tagline
+
 export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroScene {
   const stringG = heroEl.querySelector<SVGGElement>('[data-hero-string]')!
   const ballG = heroEl.querySelector<SVGGElement>('[data-hero-ball]')!
+  const taglineEl = heroEl.querySelector<HTMLElement>('[data-tagline]')!
+  const TAGLINE = taglineEl.textContent ?? ''
 
   let mode: Mode = 'idle'
   let t = 0 // ms into the current phase
@@ -40,6 +44,37 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
   let vy = 0
   let releaseAngle = 0
   let recoilAmp = 0 // radians
+  let typeT = 0 // ms since typing started
+
+  // Split the tagline into per-character spans: the full line always defines
+  // layout and wrap points, and characters are revealed in place.
+  taglineEl.textContent = ''
+  const chars: HTMLElement[] = []
+  for (const ch of TAGLINE) {
+    const span = document.createElement('span')
+    span.textContent = ch
+    taglineEl.appendChild(span)
+    chars.push(span)
+  }
+  const caret = document.createElement('span')
+  caret.className = 'hero__caret'
+  let typedCount = chars.length // spans start visible (matches no-JS render)
+
+  const setTyped = (n: number): void => {
+    const clamped = Math.max(0, Math.min(chars.length, n))
+    if (clamped === typedCount) return
+    const lo = Math.min(typedCount, clamped)
+    const hi = Math.max(typedCount, clamped)
+    for (let i = lo; i < hi; i++) {
+      chars[i].style.visibility = i < clamped ? 'visible' : 'hidden'
+    }
+    typedCount = clamped
+    if (clamped > 0 && clamped < chars.length) {
+      chars[clamped - 1].after(caret)
+    } else {
+      caret.remove()
+    }
+  }
 
   const setPendulum = (rad: number): void => {
     const deg = (rad * 180) / Math.PI
@@ -58,13 +93,24 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
     vx = 0
     vy = 0
     recoilAmp = 0
+    typeT = 0
+    setTyped(0)
     stringG.removeAttribute('transform')
     ballG.removeAttribute('transform')
   }
 
+  // Motion mode starts with the line untyped; reduced motion keeps it shown.
+  if (!isReduced()) setTyped(0)
+
   addTick((dt) => {
     if (mode === 'idle' || mode === 'done') return
     t += dt * 1000
+
+    // The tagline starts typing the moment the scene triggers.
+    if (mode === 'delay' || mode === 'sway') {
+      typeT += dt * 1000
+      setTyped(Math.floor(typeT / TYPE_MS))
+    }
 
     if (mode === 'delay') {
       if (t >= START_DELAY_MS) {
@@ -92,6 +138,7 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
         vy = -ARM * Math.sin(theta) * omega
         releaseAngle = (theta * 180) / Math.PI
         recoilAmp = omega / STRING_FREQ
+        setTyped(TAGLINE.length) // typing is long done by now; make it certain
         mode = 'fall'
         t = 0
         return
@@ -135,9 +182,13 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
   observer.observe(heroEl)
 
   return {
-    // Both directions land on the authored hanging pose.
+    // Both directions land on the hanging pose with the full line readable —
+    // a live toggle fires no IntersectionObserver crossing, so clearing the
+    // text here would leave the headline blank until the hero re-enters.
+    // The next real trigger still retypes from zero.
     setReduced() {
       reset()
+      setTyped(TAGLINE.length)
     },
   }
 }

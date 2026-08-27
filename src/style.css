@@ -139,12 +139,31 @@ body {
 }
 
 .hero__tagline {
-  margin: 1.4rem auto 0;
-  max-width: 34ch;
-  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  margin: 1.6rem auto 0;
+  font-size: clamp(1rem, 1.9vw, 1.5rem);
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--house);
+  white-space: nowrap;
+}
+
+/* JS splits the line into per-character spans and reveals them by
+   visibility, so the full text always defines the layout and wrap points.
+   Without JS the line simply renders as static text. The caret is
+   absolutely positioned so it never takes space or perturbs wrapping. */
+.hero__caret {
+  position: absolute;
+  width: 3px;
+  height: 1em;
+  margin-left: 2px;
+  background: var(--gold);
+}
+
+@media (max-width: 700px) {
+  .hero__tagline {
+    white-space: normal;
+    max-width: 30ch;
+  }
 }
 
 .panel {
