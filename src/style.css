@@ -248,20 +248,27 @@ h2 {
   stroke-width: 2.75;
 }
 
-/* The wedge is a solid brass mass, like the ground it retracts into. */
+/* The wedge is a solid wooden mass, like the ground it retracts into; it
+   lives in the slope-rotated frame, so its grain runs along the slope. */
 .scene-solid {
   fill: var(--ground);
   stroke: var(--ground);
   stroke-width: 2.75;
+  filter: url(#wood-h);
 }
 
-/* Solid brass masses of the back-layer world: the ground below the slope
+/* Solid wooden masses of the back-layer world: the ground below the slope
    edge and the point in the drop window — a different color from the dark
    green ball so it always reads on top. Anything that sinks beneath the
    ground edge disappears into it. */
 .scene-fill {
   fill: var(--ground);
   stroke: none;
+  filter: url(#wood-h);
+}
+
+.scene-fill--v {
+  filter: url(#wood-v);
 }
 
 .disco-shell {
