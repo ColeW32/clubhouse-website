@@ -190,9 +190,11 @@ h2 {
   aspect-ratio: 600 / 460;
   background-color: var(--window-bg);
   background-image: var(--grain-cool);
-  color: var(--line);
+  /* The disco ball is the brand object: logo color and relative line weight
+     (9% of radius, same as the hero ball) even out here on the back layer. */
+  color: var(--house);
   --disco-fill: var(--window-bg);
-  --disco-stroke: 3;
+  --disco-stroke: 9;
   border: 1px solid var(--window-border);
   box-shadow:
     inset 0 2px 6px rgba(36, 56, 79, 0.07),
