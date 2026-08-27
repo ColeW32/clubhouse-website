@@ -8,7 +8,7 @@
   --window-border: #b4a582;
   --house: #22372f;
   --gold: #a8824c;
-  --ground: #a8824c;
+  --ground: #4c3f2b;
 
   /* fine warm speckle on the front paper layer */
   --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.26 0 0 0 0 0.21 0 0 0 0 0.13 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)'/%3E%3C/svg%3E");
@@ -248,27 +248,22 @@ h2 {
   stroke-width: 2.75;
 }
 
-/* The wedge is a solid wooden mass, like the ground it retracts into; it
-   lives in the slope-rotated frame, so its grain runs along the slope. */
+/* The wedge is a solid dark mass, like the ground it retracts into. */
 .scene-solid {
   fill: var(--ground);
   stroke: var(--ground);
   stroke-width: 2.75;
-  filter: url(#wood-h);
+  filter: url(#ground-tex);
 }
 
-/* Solid wooden masses of the back-layer world: the ground below the slope
-   edge and the point in the drop window — a different color from the dark
-   green ball so it always reads on top. Anything that sinks beneath the
-   ground edge disappears into it. */
+/* Solid dark umber masses of the back-layer world: the ground below the
+   slope edge and the point in the drop window — a warm dark distinct from
+   the green ball so it always reads on top. Anything that sinks beneath
+   the ground edge disappears into it. */
 .scene-fill {
   fill: var(--ground);
   stroke: none;
-  filter: url(#wood-h);
-}
-
-.scene-fill--v {
-  filter: url(#wood-v);
+  filter: url(#ground-tex);
 }
 
 .disco-shell {
