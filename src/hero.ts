@@ -3,7 +3,7 @@ import { addTick } from './ticker'
 // Hero logo scene: the disco ball hangs from a string under the arch. Wind
 // sways the pendulum, the ball detaches mid-swing, falls, and is swallowed by
 // the clip seam behind the CLUBHOUSE wordmark. The string stays and recoils.
-const PIVOT = { x: 320, y: 197 }
+const PIVOT = { x: 320, y: 190 } // ceiling of the arch cutout
 const REST = { x: 320, y: 255 } // hanging ball center
 const ARM = REST.y - PIVOT.y // pendulum length to ball center
 

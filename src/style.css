@@ -96,17 +96,10 @@ body {
   --disco-stroke: 9;
 }
 
+/* Solid house with the archway as a negative-space cutout (evenodd). */
 .hero__house {
-  fill: none;
-  stroke: var(--house);
-  stroke-width: 24;
-  stroke-linejoin: miter;
-}
-
-.hero__arch {
-  fill: none;
-  stroke: var(--house);
-  stroke-width: 14;
+  fill: var(--house);
+  stroke: none;
 }
 
 .hero__string {
@@ -242,16 +235,18 @@ h2 {
   stroke-width: 2.75;
 }
 
+/* The wedge is a solid dark mass, like the ground it retracts into. */
 .scene-solid {
-  fill: var(--window-bg);
+  fill: var(--house);
   stroke: var(--house);
   stroke-width: 2.75;
 }
 
-/* The ground is solid paper: same color as the back layer, so it is invisible
-   but occludes anything that sinks beneath the slope surface. */
-.scene-mask {
-  fill: var(--window-bg);
+/* Solid off-black masses of the back-layer world: the ground below the
+   slope edge and the point in the drop window. Anything that sinks beneath
+   the ground edge disappears into it. */
+.scene-fill {
+  fill: var(--house);
   stroke: none;
 }
 

@@ -37,10 +37,9 @@
         <section class="hero" id="hero">
           <div class="hero__lockup">
             <svg class="hero__logo" viewBox="0 0 640 560" role="img" aria-label="Clubhouse Media">
-              <path class="hero__house" d="M 210 330 L 210 242 L 320 125 L 430 242 L 430 330" />
-              <path class="hero__arch" d="M 265 330 L 265 245 A 55 55 0 0 1 375 245 L 375 330" />
+              <path class="hero__house" fill-rule="evenodd" d="M 198 330 L 198 236 L 320 106 L 442 236 L 442 330 Z M 265 330 L 265 245 A 55 55 0 0 1 375 245 L 375 330 Z" />
               <g data-hero-string>
-                <line class="hero__string" x1="320" y1="197" x2="320" y2="226" />
+                <line class="hero__string" x1="320" y1="190" x2="320" y2="226" />
               </g>
               <g clip-path="url(#hero-ball-clip)">
                 <g data-hero-ball>
@@ -74,7 +73,7 @@
                         <polygon class="scene-solid" points="-121,0 -57,0 -89,-64" />
                       </g>
                     </g>
-                    <polygon class="scene-mask" points="-100,463.33 700,196.67 700,620 -100,620" />
+                    <polygon class="scene-fill" points="-100,463.33 700,196.67 700,620 -100,620" />
                     <line class="scene-stroke" x1="-80" y1="456.67" x2="680" y2="203.33" />
                     <g data-ball transform="translate(470.28 174.16)">
                       <use href="#disco-ball" transform="scale(0.94)" />
@@ -92,8 +91,7 @@
           <div class="window" id="window-drop" aria-hidden="true">
             <div class="window__layer">
               <svg viewBox="0 0 600 460">
-                <line class="scene-stroke" x1="302" y1="283" x2="233" y2="510" />
-                <line class="scene-stroke" x1="302" y1="283" x2="355" y2="510" />
+                <polygon class="scene-fill" points="302,283 233,510 355,510" />
                 <g data-ball transform="translate(302 189)">
                   <use href="#disco-ball" transform="scale(0.94)" />
                 </g>
