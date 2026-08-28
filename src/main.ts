@@ -3,6 +3,7 @@ import { addTick, startTicker } from './ticker'
 import { initRamp } from './ramp'
 import { initDrop } from './drop'
 import { initHero } from './hero'
+import { initSketch } from './sketch'
 
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)')
 const isReduced = (): boolean => reducedQuery.matches
@@ -18,11 +19,13 @@ const isRevealed = (): boolean =>
 const hero = initHero(heroEl, isReduced)
 const ramp = initRamp(rampWindow, isReduced, isRevealed)
 const drop = initDrop(dropWindow, isReduced)
+const sketch = initSketch(document.getElementById('sketch')!, isReduced)
 
 reducedQuery.addEventListener('change', () => {
   hero.setReduced(isReduced())
   ramp.setReduced(isReduced())
   drop.setReduced(isReduced())
+  sketch.setReduced(isReduced())
 })
 
 // The wedge slams (and the ball is released) on the first downward scroll

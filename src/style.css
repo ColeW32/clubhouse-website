@@ -9,6 +9,8 @@
   --house: #22372f;
   --gold: #a8824c;
   --ground: #4c3f2b;
+  --pencil: #a79e8c;
+  --pencil-soft: #bcb4a4;
 
   /* fine warm speckle on the front paper layer */
   --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.26 0 0 0 0 0.21 0 0 0 0 0.13 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)'/%3E%3C/svg%3E");
@@ -158,6 +160,85 @@ body {
     white-space: normal;
     max-width: 30ch;
   }
+}
+
+/* ---- Pencil interlude: the working sketch on the paper between the two
+   windows, tracing where the ball goes after it leaves the first one. */
+/* Padded and capped exactly like .panel, so the sketch's x-axis lines up
+   with the panel grid — the trace leaves the ramp window's column and lands
+   in the drop window's. */
+.sketch {
+  position: relative;
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  margin: clamp(-5rem, -7vw, -3rem) 0 clamp(-4rem, -6vw, -2rem);
+  pointer-events: none;
+}
+
+/* The trace only means anything while the two windows sit diagonally apart.
+   Below the stacking breakpoint they line up vertically and the annotations
+   would be too small to read, so the sheet stays blank. */
+@media (max-width: 820px) {
+  .sketch {
+    display: none;
+  }
+}
+
+.sketch__inner {
+  width: 100%;
+  max-width: 1060px;
+  margin-inline: auto;
+}
+
+.sketch svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.pencil {
+  fill: none;
+  stroke: var(--pencil);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pencil--faint {
+  stroke: var(--pencil-soft);
+  stroke-width: 1.6;
+}
+
+.pencil--dashed {
+  stroke: var(--pencil);
+  stroke-width: 2.2;
+}
+
+/* Leader arrows: fainter still, so they read as afterthought annotations. */
+.pencil--ghost {
+  stroke: var(--pencil-soft);
+  stroke-width: 1.4;
+  opacity: 0.75;
+}
+
+.pencil-label {
+  fill: var(--pencil);
+  font-family: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
+  font-size: 30px;
+  letter-spacing: 0.5px;
+}
+
+.pencil-label--small {
+  font-size: 23px;
+  fill: var(--pencil-soft);
+}
+
+.pencil-label--caps {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  fill: var(--pencil);
 }
 
 .panel {
