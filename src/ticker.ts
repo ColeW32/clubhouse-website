@@ -37,6 +37,20 @@ export function startTicker(): void {
   requestAnimationFrame(frame)
 }
 
+/** How much of an element is inside the viewport, 0..1 of its own height. */
+export function visibleRatio(el: Element): number {
+  const r = el.getBoundingClientRect()
+  if (r.height <= 0) return 0
+  const top = Math.max(0, r.top)
+  const bottom = Math.min(window.innerHeight, r.bottom)
+  return Math.max(0, (bottom - top) / r.height)
+}
+
+/** True once the element has scrolled entirely above the viewport. */
+export function scrolledPast(el: Element): boolean {
+  return el.getBoundingClientRect().bottom < 0
+}
+
 export const easeInQuad = (t: number): number => t * t
 export const easeOutQuad = (t: number): number => t * (2 - t)
 export const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))

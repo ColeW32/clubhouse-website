@@ -308,7 +308,28 @@ h2 {
   left: 50%;
   right: auto;
   height: auto;
-  margin-left: 8px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+/* The cue doubles as the page's scroll affordance, so it carries more ink
+   than the background notes — the darker pencil, close to full strength. */
+.note__stroke--cue {
+  stroke: var(--pencil);
+  stroke-width: 1.8;
+  opacity: 0.85;
+}
+
+.note__cue {
+  font-family: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
+  font-size: 24px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--pencil);
+  opacity: 0.85;
 }
 
 .note--hero .note__mark {

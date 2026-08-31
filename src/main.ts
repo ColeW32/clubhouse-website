@@ -24,9 +24,10 @@ const ramp = initRamp(rampWindow, isReduced, isRevealed)
 const drop = initDrop(dropWindow, isReduced)
 const sketch = initSketch(document.getElementById('sketch')!, isReduced)
 
-// The background notes use the same pencil machinery, scoped to each
-// section so they draw on as that section comes up.
-const notes = [heroEl, document.getElementById('portfolio')!, document.getElementById('quality')!].map(
+// The background notes use the same pencil machinery, scoped to each section
+// so they draw on as that section comes up. The hero's cue is not in here —
+// it is timed off the ball leaving, so the hero scene drives it directly.
+const notes = [document.getElementById('portfolio')!, document.getElementById('quality')!].map(
   (section) => initSketch(section, isReduced),
 )
 
@@ -58,13 +59,7 @@ window.addEventListener(
     }
     // The ramp window sits beneath the hero fold and intersects the viewport
     // from load, so only count scrolls once the hero sheet has lifted away.
-    // When the hero slides back over it (scrolling home), reset the scene
-    // behind the opaque sheet so the next reveal replays.
-    if (down && isRevealed()) {
-      ramp.onScrollDown()
-    } else if (heroEl.getBoundingClientRect().bottom > window.innerHeight * 0.9) {
-      ramp.onCovered()
-    }
+    if (down && isRevealed()) ramp.onScrollDown()
   },
   { passive: true },
 )

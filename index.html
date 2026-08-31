@@ -75,12 +75,13 @@
             </p>
           </div>
           <div class="note note--hero" aria-hidden="true">
-            <svg class="note__mark" width="46" height="104" viewBox="0 0 46 104">
-              <path class="note__stroke" data-draw d="M 7 4 L 10 18" />
-              <path class="note__stroke" data-draw d="M 13 31 L 17 46" />
-              <path class="note__stroke" data-draw d="M 21 59 L 26 75" />
-              <circle class="note__stroke" data-draw cx="31" cy="90" r="7" />
+            <svg class="note__mark" width="52" height="104" viewBox="0 0 52 104">
+              <path class="note__stroke note__stroke--cue" data-cue-mark d="M 9 6 L 12 21" />
+              <path class="note__stroke note__stroke--cue" data-cue-mark d="M 15 34 L 19 50" />
+              <path class="note__stroke note__stroke--cue" data-cue-mark d="M 22 62 L 27 78" />
+              <path class="note__stroke note__stroke--cue" data-cue-mark d="M 21.4 85.4 L 31 96 L 32.9 81.8" />
             </svg>
+            <span class="note__cue" data-cue>keep scrolling</span>
           </div>
         </section>
 
@@ -123,7 +124,7 @@
       <section class="sketch" id="sketch">
         <div class="sketch__inner">
           <svg viewBox="0 0 1200 330" role="img"
-               aria-label="Pencil sketch tracing the ball's flight out of our owned apps, matched to users likely to convert, and down into the next window.">
+               aria-label="Pencil sketch tracing a product's path out of our owned apps, matched to users likely to convert, and down into the next window.">
             <!-- The traced flight. Refusals kept deliberately: no numbers in
                  pencil, no charts, no fabricated metrics, nothing marking up
                  the headings, and the pencil never touches a window edge.
@@ -132,13 +133,13 @@
                  span in a shallower band; the open circles are equal time
                  steps, so the widening gaps are honest free fall. -->
 
-            <!-- the ball, still one of millions, leaving the first window -->
+            <!-- the product being advertised, leaving the first window -->
             <circle class="pencil" data-draw cx="601" cy="29" r="12" />
             <path class="pencil pencil--faint" data-draw d="M 601 17.5 L 601 40.5" />
             <path class="pencil pencil--faint" data-draw d="M 590.6 23 L 611.4 23" />
             <path class="pencil pencil--faint" data-draw d="M 590.6 35 L 611.4 35" />
             <path class="pencil pencil--ghost" data-draw d="M 646 28 L 620 28" />
-            <text class="pencil-label" data-fade x="654" y="36">one of them</text>
+            <text class="pencil-label" data-fade x="654" y="36">product to advertise</text>
 
             <!-- the flight, falling faster the further it goes -->
             <path class="pencil pencil--dashed" data-trail data-dash="14" data-gap="11"

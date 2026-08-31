@@ -1,4 +1,5 @@
-import { addTick, easeInQuad } from './ticker'
+import { addTick, easeInQuad, scrolledPast, visibleRatio } from './ticker'
+import { RAMP, hasBall, releaseBall } from './relay'
 
 // Slope: y = 430 - x/3 in the 600x460 viewBox, descending to the left.
 const THETA = Math.atan(1 / 3)
@@ -23,6 +24,7 @@ const SINK = 70 // apex is 64 tall; 70 buries it under the ground edge
 // The ball enters from up-slope, fully hidden past the window's right edge,
 // rolls down under gravity, and bounces off the wedge until it settles.
 const ROLL_IN_START = 306
+const ROLL_OUT_END = -700 // far enough along the slope to be off-screen
 const STOP_RESTITUTION = 0.35
 const SETTLE_SPEED = 80
 
@@ -32,7 +34,6 @@ type Mode = 'empty' | 'rollin' | 'chocked' | 'slam' | 'roll' | 'done'
 
 export interface RampScene {
   onScrollDown(): void
-  onCovered(): void
   setReduced(reduced: boolean): void
 }
 
@@ -80,18 +81,36 @@ export function initRamp(
     setBall(s)
   }
 
-  // The markup is authored chocked (the reduced-motion pose); in motion mode
-  // the window starts empty and the ball rolls in on reveal.
-  if (isReduced()) {
-    setChocked()
-  } else {
-    reset()
+  // Snap to the state after the ball has rolled out: trapdoor down, window
+  // empty, ball handed on. Used when the reader scrolls past mid-scene.
+  const finish = (): void => {
+    mode = 'done'
+    t = SLAM_MS
+    s = ROLL_OUT_END
+    v = 0
+    setWedge(1)
+    setBall(s)
+    releaseBall(RAMP)
   }
 
+  // The window starts empty either way — the ball only ever exists in one
+  // place, and under reduced motion it has already passed through here.
+  reset()
+  if (isReduced()) releaseBall(RAMP)
+
   addTick((dt) => {
+    if (mode !== 'done') {
+      armed = visibleRatio(windowEl) >= 0.3
+      // Scrolled clear of the window: the scene runs once, so finish it where
+      // it stands and pass the ball on rather than replaying it later.
+      if (scrolledPast(windowEl)) {
+        finish()
+        return
+      }
+    }
     if (mode === 'empty') {
       // Roll in the moment the section is actually on show.
-      if (armed && !isReduced() && isRevealed()) mode = 'rollin'
+      if (armed && !isReduced() && isRevealed() && hasBall(RAMP)) mode = 'rollin'
       return
     }
     if (mode === 'chocked' || mode === 'done') return
@@ -126,24 +145,12 @@ export function initRamp(
       v += ACCEL * dt
       s -= v * dt
       setBall(s)
-      if (CONTACT.x + UPHILL.x * s < EXIT_X) mode = 'done'
+      if (CONTACT.x + UPHILL.x * s < EXIT_X) {
+        mode = 'done'
+        releaseBall(RAMP)
+      }
     }
   })
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.intersectionRatio >= 0.3) {
-          armed = true
-        } else if (!entry.isIntersecting) {
-          armed = false
-          if (mode !== 'empty') reset()
-        }
-      }
-    },
-    { threshold: [0, 0.3] },
-  )
-  observer.observe(windowEl)
 
   return {
     onScrollDown() {
@@ -152,15 +159,8 @@ export function initRamp(
         t = 0
       }
     },
-    // Under the fold the window never exits the viewport at the top of the
-    // page — it just gets re-covered by the hero sheet. Reset behind it so
-    // the next reveal replays from the roll-in.
-    onCovered() {
-      if (mode !== 'empty') reset()
-    },
     setReduced(reduced) {
-      if (reduced) setChocked()
-      else reset()
+      if (reduced && mode !== 'done') finish()
     },
   }
 }

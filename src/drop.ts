@@ -1,4 +1,5 @@
-import { addTick, clamp } from './ticker'
+import { addTick, clamp, visibleRatio } from './ticker'
+import { DROP, hasBall } from './relay'
 
 // The ball falls in from behind the top edge of the window, bounces on the
 // apex of the point at (302, 283), and settles resting on it.
@@ -28,6 +29,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   let t = 0 // ms into delay/contact
   let impactSpeed = 0
   let settling = false
+  let visible = false
 
   const render = (sx: number, sy: number): void => {
     // keep the ball's bottom edge anchored while squashing
@@ -60,7 +62,17 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   }
 
   addTick((dt) => {
-    if (mode === 'idle' || mode === 'done') return
+    if (mode === 'idle') {
+      visible = visibleRatio(windowEl) >= 0.5
+      // Only once the window above has actually let the ball go, so it can
+      // never be falling in here while it is still rolling up there.
+      if (visible && !isReduced() && hasBall(DROP)) {
+        mode = 'delay'
+        t = 0
+      }
+      return
+    }
+    if (mode === 'done') return
 
     if (mode === 'delay') {
       t += dt * 1000
@@ -100,27 +112,10 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
     }
   })
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.intersectionRatio >= 0.5) {
-          if (!isReduced() && mode === 'idle') {
-            mode = 'delay'
-            t = 0
-          }
-        } else if (!entry.isIntersecting && mode !== 'idle' && !isReduced()) {
-          reset()
-        }
-      }
-    },
-    { threshold: [0, 0.5] },
-  )
-  observer.observe(windowEl)
-
   return {
     setReduced(reduced) {
-      if (reduced) settle()
-      else reset()
+      // The last stage: its resting pose is the ball balanced on the point.
+      if (reduced && mode !== 'done') settle()
     },
   }
 }
