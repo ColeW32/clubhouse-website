@@ -362,8 +362,26 @@ h2 {
   color: var(--house);
   --disco-fill: var(--window-bg);
   --disco-stroke: 9;
-  border: 1px solid var(--window-border);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* The cut edge, drawn on the torn outline rather than the element's box.
+   It sits inside the clip, so its outer half is trimmed away and what
+   shows is a hairline following the tear. */
+.window__edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+
+.window__edge path {
+  fill: none;
+  stroke: var(--window-border);
+  stroke-width: 2.4;
 }
 
 /* Recess shading painted over the whole scene: the front paper has

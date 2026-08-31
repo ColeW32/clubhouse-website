@@ -4,9 +4,12 @@ import { initRamp } from './ramp'
 import { initDrop } from './drop'
 import { initHero } from './hero'
 import { initSketch } from './sketch'
+import { initTornWindows } from './torn'
 
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)')
 const isReduced = (): boolean => reducedQuery.matches
+
+initTornWindows()
 
 const heroEl = document.getElementById('hero')!
 const rampWindow = document.getElementById('window-ramp')!
