@@ -170,7 +170,11 @@ body {
 .sketch {
   position: relative;
   padding: 0 clamp(1.25rem, 5vw, 4rem);
-  margin: clamp(-5rem, -7vw, -3rem) 0 clamp(-4rem, -6vw, -2rem);
+  /* Both neighbours centre a window inside a 100vh panel, so the paper each
+     leaves behind is (100vh - window height) / 2. Cancelling that with a
+     -50vh term holds the gap at a constant ~24px on any screen, instead of
+     it growing with viewport height. */
+  margin: calc(216px - 50vh) 0;
   pointer-events: none;
 }
 
