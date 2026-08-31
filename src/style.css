@@ -274,11 +274,80 @@ h2 {
   color: var(--ink);
 }
 
+.panel__copy {
+  position: relative;
+}
+
 .panel__copy p {
   margin: 1.1rem 0 0;
   font-size: 1rem;
   line-height: 1.55;
   max-width: 38ch;
+}
+
+/* ---- Background notes: pencil marginalia in the dead paper beside the
+   copy. A tier quieter than the sketch band — --pencil-soft only, never
+   --pencil — so they recede. Mounted on zero-height absolute overlays, so
+   they cannot shift a single element on the page. */
+.note {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The hero's note picks the ball's fall back up below the wordmark — it
+   drifts right, the way the ball actually leaves its string — so it sits
+   inside the sheet rather than hanging below a copy block. */
+.note--hero {
+  top: auto;
+  bottom: clamp(2.5rem, 7vh, 5rem);
+  left: 50%;
+  right: auto;
+  height: auto;
+  margin-left: 8px;
+}
+
+.note--hero .note__mark {
+  position: static;
+  display: block;
+}
+
+.note__caps {
+  position: absolute;
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 2px;
+  line-height: 22px;
+  color: var(--pencil-soft);
+  opacity: 0.62;
+}
+
+.note__mark {
+  position: absolute;
+  overflow: visible;
+}
+
+/* Small type needs more opacity than long strokes to sit at the same
+   perceived weight — these two values are matched, not inconsistent. */
+.note__stroke {
+  fill: none;
+  stroke: var(--pencil-soft);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.48;
+}
+
+@media (max-width: 820px) {
+  .note {
+    display: none;
+  }
 }
 
 /* A cutout in the front paper: cooler, brighter back layer with a cut edge. */

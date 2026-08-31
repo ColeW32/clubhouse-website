@@ -21,11 +21,18 @@ const ramp = initRamp(rampWindow, isReduced, isRevealed)
 const drop = initDrop(dropWindow, isReduced)
 const sketch = initSketch(document.getElementById('sketch')!, isReduced)
 
+// The background notes use the same pencil machinery, scoped to each
+// section so they draw on as that section comes up.
+const notes = [heroEl, document.getElementById('portfolio')!, document.getElementById('quality')!].map(
+  (section) => initSketch(section, isReduced),
+)
+
 reducedQuery.addEventListener('change', () => {
   hero.setReduced(isReduced())
   ramp.setReduced(isReduced())
   drop.setReduced(isReduced())
   sketch.setReduced(isReduced())
+  for (const note of notes) note.setReduced(isReduced())
 })
 
 // The wedge slams (and the ball is released) on the first downward scroll
