@@ -1,8 +1,10 @@
 :root {
   --paper: #f2ecdf;
   --hero-paper: #edeae2;
-  --ink: #24384f;
-  --ink-soft: #5d6b7e;
+  --ink: #1f1b16;
+  --ink-soft: #1f1b16;
+  --sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --line: #b3bfce;
   --window-bg: #e9e1cc;
   --window-border: #b4a582;
@@ -26,8 +28,8 @@
 
 body {
   margin: 0;
-  font-family: "Titillium Web", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  color: var(--ink-soft);
+  font-family: var(--serif);
+  color: var(--ink);
   background-color: var(--paper);
   background-image: var(--grain-fine), var(--grain-mottle);
 }
@@ -113,7 +115,7 @@ body {
 
 .hero__wordmark {
   fill: var(--house);
-  font-family: inherit;
+  font-family: 'Titillium Web', ui-sans-serif, system-ui, sans-serif;
   font-weight: 900;
   font-size: 60px;
   letter-spacing: 4px;
@@ -122,7 +124,7 @@ body {
 
 .hero__media {
   fill: var(--gold);
-  font-family: inherit;
+  font-family: 'Titillium Web', ui-sans-serif, system-ui, sans-serif;
   font-weight: 600;
   font-size: 24px;
   letter-spacing: 12px;
@@ -136,10 +138,12 @@ body {
 
 .hero__tagline {
   margin: 1.6rem auto 0;
-  font-size: clamp(1rem, 1.9vw, 1.5rem);
+  font-family: var(--sans);
+  font-size: clamp(1.05rem, 2.25vw, 1.85rem);
   font-weight: 700;
-  line-height: 1.4;
-  color: var(--house);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   white-space: nowrap;
 }
 
@@ -238,7 +242,7 @@ body {
 }
 
 .pencil-label--caps {
-  font-family: inherit;
+  font-family: var(--sans);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 2.5px;
@@ -268,10 +272,23 @@ body {
 
 h2 {
   margin: 0;
-  font-size: clamp(1.9rem, 3.6vw, 2.75rem);
-  line-height: 1.16;
+  font-family: var(--sans);
+  font-size: clamp(2.05rem, 4.05vw, 3.125rem);
+  line-height: 1.07;
+  letter-spacing: -0.021em;
   font-weight: 700;
   color: var(--ink);
+  text-wrap: balance;
+}
+
+/* Key nouns are underlined, the way the reference marks the words that name
+   the offer. skip-ink off so the rule stays unbroken under descenders. */
+.u {
+  text-decoration-line: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 0.065em;
+  text-underline-offset: 0.17em;
+  text-decoration-skip-ink: none;
 }
 
 .panel__copy {
@@ -279,10 +296,12 @@ h2 {
 }
 
 .panel__copy p {
-  margin: 1.1rem 0 0;
-  font-size: 1rem;
-  line-height: 1.55;
-  max-width: 38ch;
+  margin: 1.35rem 0 0;
+  font-family: var(--serif);
+  font-size: clamp(1.05rem, 1.32vw, 1.1875rem);
+  line-height: 1.62;
+  max-width: 34ch;
+  color: var(--ink);
 }
 
 /* ---- Background notes: pencil marginalia in the dead paper beside the
@@ -340,7 +359,7 @@ h2 {
 .note__caps {
   position: absolute;
   white-space: nowrap;
-  font-family: inherit;
+  font-family: var(--sans);
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 2px;
@@ -368,6 +387,11 @@ h2 {
 @media (max-width: 820px) {
   .note {
     display: none;
+  }
+
+  /* The hero's cue is an affordance, not background texture — it stays. */
+  .note--hero {
+    display: flex;
   }
 }
 
@@ -513,14 +537,11 @@ h2 {
   }
 }
 
-/* Very narrow screens: the authored line breaks no longer fit — wrap naturally. */
+/* Very narrow screens: ease the display size so the headline still fits. */
 @media (max-width: 480px) {
   h2 {
-    font-size: 1.75rem;
-  }
-
-  h2 br {
-    display: none;
+    font-size: 1.95rem;
+    letter-spacing: -0.016em;
   }
 }
 

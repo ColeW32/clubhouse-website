@@ -38,18 +38,31 @@ export interface HeroScene {
   setReduced(reduced: boolean): void
 }
 
+// Wrap every character in its own span, in document order, leaving the
+// surrounding markup intact — so an underlined word inside the line keeps its
+// underline instead of being flattened into plain text.
+function splitChars(node: Node, out: HTMLElement[]): void {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment()
+      for (const ch of child.textContent ?? '') {
+        const span = document.createElement('span')
+        span.textContent = ch
+        frag.appendChild(span)
+        out.push(span)
+      }
+      node.replaceChild(frag, child)
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      splitChars(child, out)
+    }
+  }
+}
+
 // Reveals text one character at a time without ever changing its layout: the
 // full string is always present, characters are just hidden until their turn.
 function typewriter(el: HTMLElement, caretClass?: string) {
-  const text = el.textContent ?? ''
-  el.textContent = ''
   const chars: HTMLElement[] = []
-  for (const ch of text) {
-    const span = document.createElement('span')
-    span.textContent = ch
-    el.appendChild(span)
-    chars.push(span)
-  }
+  splitChars(el, chars)
   const caret = caretClass ? document.createElement('span') : null
   if (caret && caretClass) caret.className = caretClass
   let shown = chars.length // starts visible, matching the no-JS render
