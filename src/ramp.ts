@@ -34,6 +34,8 @@ type Mode = 'empty' | 'rollin' | 'chocked' | 'slam' | 'roll' | 'done'
 
 export interface RampScene {
   onScrollDown(): void
+  /** Give the ball up now, because the next window is ready for it. */
+  handOff(): void
   setReduced(reduced: boolean): void
 }
 
@@ -153,6 +155,9 @@ export function initRamp(
   })
 
   return {
+    handOff() {
+      if (mode !== 'done') finish()
+    },
     onScrollDown() {
       if (!isReduced() && armed && mode === 'chocked') {
         mode = 'slam'

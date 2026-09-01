@@ -1,5 +1,5 @@
 import './style.css'
-import { addTick, startTicker } from './ticker'
+import { addTick, startTicker, visibleRatio } from './ticker'
 import { initRamp } from './ramp'
 import { initDrop } from './drop'
 import { initHero } from './hero'
@@ -30,8 +30,18 @@ initFrontier(
   document.getElementById('frontier')!,
   dropWindow,
   isReduced,
-  () => drop.settleNow(),
+  () => drop.release(),
 )
+
+// The cascade has to keep up with the reader. The ramp normally hands the
+// ball on when it rolls out of its window, but a reader who scrolls straight
+// past would otherwise hold it until that window is completely gone — long
+// after the next window is on screen waiting. So hand it on the moment the
+// drop window actually needs it, or its ball arrives late and looks like it
+// simply appeared.
+addTick(() => {
+  if (visibleRatio(dropWindow) >= 0.5) ramp.handOff()
+})
 
 // The background notes use the same pencil machinery, scoped to each section
 // so they draw on as that section comes up. The hero's cue is not in here —

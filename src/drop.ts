@@ -13,12 +13,16 @@ const RESTITUTION = 0.45
 const SETTLE_SPEED = 160 // impacts slower than this settle instead of bouncing
 const CONTACT_MS = 80
 const START_DELAY_MS = 120
+const TOPPLE_VX = 120 // sideways nudge as it leaves the point
 
-type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'done'
+type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'perched' | 'topple' | 'gone'
 
 export interface DropScene {
-  /** Snap to the settled pose — used when the finale takes the ball over. */
-  settleNow(): void
+  /** Tip the ball off the spike so it falls out through the bottom of the
+   *  cutout — the window looks onto a layer behind the page, so the ball
+   *  leaves by dropping out of sight rather than staying balanced. */
+  release(): void
+  hasLeft(): boolean
   setReduced(reduced: boolean): void
 }
 
@@ -32,15 +36,20 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   let impactSpeed = 0
   let settling = false
   let visible = false
+  let x = BALL_X
+  let vx = 0
 
   const render = (sx: number, sy: number): void => {
     // keep the ball's bottom edge anchored while squashing
     const ty = y + R - R * sy
-    ball.setAttribute('transform', `translate(${BALL_X} ${ty}) scale(${sx} ${sy})`)
+    const spin = ((x - BALL_X) / R) * (180 / Math.PI)
+    ball.setAttribute('transform', `translate(${x} ${ty}) rotate(${spin}) scale(${sx} ${sy})`)
   }
 
   const reset = (): void => {
     mode = 'idle'
+    x = BALL_X
+    vx = 0
     y = START_Y
     v = 0
     t = 0
@@ -49,7 +58,9 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   }
 
   const settle = (): void => {
-    mode = 'done'
+    mode = 'perched'
+    x = BALL_X
+    vx = 0
     y = REST_Y
     v = 0
     render(1, 1)
@@ -74,7 +85,19 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
       }
       return
     }
-    if (mode === 'done') return
+    if (mode === 'gone') return
+
+    if (mode === 'topple') {
+      // Off the point and straight down out of the cutout.
+      v += GRAVITY * dt
+      y += v * dt
+      x += vx * dt
+      render(1, 1)
+      if (y - R > 460) mode = 'gone'
+      return
+    }
+
+    if (mode === 'perched') return
 
     if (mode === 'delay') {
       t += dt * 1000
@@ -106,7 +129,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
     if (t >= CONTACT_MS) {
       if (settling) {
         render(1, 1)
-        mode = 'done'
+        mode = 'perched'
       } else {
         v = -impactSpeed * RESTITUTION
         mode = 'fall'
@@ -115,12 +138,19 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   })
 
   return {
-    settleNow() {
-      if (mode !== 'done') settle()
+    release() {
+      if (mode === 'topple' || mode === 'gone') return
+      // however far through the landing it got, it now tips off and falls
+      vx = -TOPPLE_VX
+      v = Math.max(0, v)
+      mode = 'topple'
+    },
+    hasLeft() {
+      return mode === 'gone'
     },
     setReduced(reduced) {
-      // The last stage: its resting pose is the ball balanced on the point.
-      if (reduced && mode !== 'done') settle()
+      // Static pose: balanced on the point, before it tips off.
+      if (reduced && mode !== 'perched' && mode !== 'gone') settle()
     },
   }
 }
