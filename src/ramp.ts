@@ -34,8 +34,10 @@ type Mode = 'empty' | 'rollin' | 'chocked' | 'slam' | 'roll' | 'done'
 
 export interface RampScene {
   onScrollDown(): void
-  /** Give the ball up now, because the next window is ready for it. */
-  handOff(): void
+  /** The next window is on screen waiting: play the trapdoor now rather than
+   *  waiting for another scroll gesture. The ball still ROLLS out — snapping
+   *  it away while this window is visible reads as a glitch. */
+  autoRoll(): void
   setReduced(reduced: boolean): void
 }
 
@@ -155,8 +157,11 @@ export function initRamp(
   })
 
   return {
-    handOff() {
-      if (mode !== 'done') finish()
+    autoRoll() {
+      if (!isReduced() && mode === 'chocked') {
+        mode = 'slam'
+        t = 0
+      }
     },
     onScrollDown() {
       if (!isReduced() && armed && mode === 'chocked') {

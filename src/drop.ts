@@ -14,6 +14,7 @@ const SETTLE_SPEED = 160 // impacts slower than this settle instead of bouncing
 const CONTACT_MS = 80
 const START_DELAY_MS = 120
 const TOPPLE_VX = 120 // sideways nudge as it leaves the point
+const PERCH_MS = 550 // how long it balances before tipping off on its own
 
 type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'perched' | 'topple' | 'gone'
 
@@ -38,6 +39,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   let visible = false
   let x = BALL_X
   let vx = 0
+  let perchT = 0
 
   const render = (sx: number, sy: number): void => {
     // keep the ball's bottom edge anchored while squashing
@@ -61,6 +63,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
     mode = 'perched'
     x = BALL_X
     vx = 0
+    perchT = 0
     y = REST_Y
     v = 0
     render(1, 1)
@@ -97,7 +100,19 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
       return
     }
 
-    if (mode === 'perched') return
+    if (mode === 'perched') {
+      // It balances only for a beat, then tips off by itself — the sooner it
+      // drops out of the cutout, the sooner the reader can move on.
+      if (!isReduced()) {
+        perchT += dt * 1000
+        if (perchT >= PERCH_MS) {
+          vx = -TOPPLE_VX
+          v = 0
+          mode = 'topple'
+        }
+      }
+      return
+    }
 
     if (mode === 'delay') {
       t += dt * 1000

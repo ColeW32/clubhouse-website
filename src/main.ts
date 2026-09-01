@@ -20,8 +20,14 @@ const dropWindow = document.getElementById('window-drop')!
 const isRevealed = (): boolean =>
   heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.25
 
+// The ball starts rolling in earlier than that — the moment the lifting sheet
+// begins uncovering the window's box — so the scene is already in motion as
+// the reader arrives and can be dismissed sooner.
+const isAppearing = (): boolean =>
+  heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.72
+
 const hero = initHero(heroEl, isReduced)
-const ramp = initRamp(rampWindow, isReduced, isRevealed)
+const ramp = initRamp(rampWindow, isReduced, isAppearing)
 const drop = initDrop(dropWindow, isReduced)
 const sketch = initSketch(document.getElementById('sketch')!, isReduced)
 
@@ -33,14 +39,12 @@ initFrontier(
   () => drop.release(),
 )
 
-// The cascade has to keep up with the reader. The ramp normally hands the
-// ball on when it rolls out of its window, but a reader who scrolls straight
-// past would otherwise hold it until that window is completely gone — long
-// after the next window is on screen waiting. So hand it on the moment the
-// drop window actually needs it, or its ball arrives late and looks like it
-// simply appeared.
+// The cascade keeps up with the reader: once the drop window is properly on
+// screen, a still-chocked ball rolls itself out rather than waiting for one
+// more scroll gesture. (A reader who flies past entirely is handled by the
+// ramp settling itself when its window leaves the viewport.)
 addTick(() => {
-  if (visibleRatio(dropWindow) >= 0.5) ramp.handOff()
+  if (visibleRatio(dropWindow) >= 0.5) ramp.autoRoll()
 })
 
 // The background notes use the same pencil machinery, scoped to each section

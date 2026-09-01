@@ -18,15 +18,13 @@ import { addTick, clamp } from './ticker'
 // meant to feel in control of — going under — follows the scroll.
 
 const TIP_OFF_AT = 0.95 // edge fraction at which the cutout is told to let go
-const ENTER_AT = 0.78 // ...and at which the timed entry fires, low on the screen
-const REARM_AT = 0.88 // scroll back above this and the entry can play again
+const ENTER_AT = 0.8 // ...and at which the timed entry fires
+const REARM_AT = 0.9 // scroll back above this and the entry can play again
 
 const ENTRY_MS = 1150
 const ENTRY_START_X = -0.04 // just off the left edge, as a fraction of width
-// Where it may come to rest, as fractions of viewport height. It parks on the
-// edge wherever the edge happens to be, held inside this band.
-const PARK_MIN = 0.30
-const PARK_MAX = 0.74
+const SINK_AT = 0.34 // edge fraction where the ball stops riding the line
+const DRIFT_SPAN = 0.3 // edge-fractions over which the mesh eases deeper
 
 const GROWTH = 0.55
 const GROW_TAU = 0.13 // seconds of smoothing on the scroll-driven size
@@ -36,6 +34,7 @@ const SPIN_RATE = 0.22
 
 const TAU = Math.PI * 2
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
+const smoothstep = (u: number): number => u * u * (3 - 2 * u)
 const easeOut = (t: number): number => 1 - (1 - t) * (1 - t)
 
 // A low skip along the surface: in fast and shallow, settling quickly. Heights
@@ -116,7 +115,6 @@ export function initFrontier(
   let entryT = -1 // < 0 until the entry is triggered
   let tipped = false
   let rSmooth = 0
-  let parkY = -1 // frozen once the entry lands, so the edge can rise over it
 
   const resize = (): void => {
     const nw = window.innerWidth
@@ -213,31 +211,20 @@ export function initFrontier(
     const d = edge / h // 1 at the bottom of the screen, 0 at the top
 
     // Tell the cutout to let its ball go, well before it is wanted here.
+    // (It tips itself off after a beat anyway; this covers a fast arrival.)
     if (!tipped && d < TIP_OFF_AT) {
       onTipOff()
       tipped = true
     }
-    if (tipped && d > TIP_OFF_AT + 0.08) tipped = false
+    if (tipped && d > TIP_OFF_AT + 0.03) tipped = false
 
-    // Fire the timed entry once the edge has climbed far enough up the screen.
-    // Its resting height is fixed right here, at the surface the ball lands
-    // on — if it kept tracking the edge, a fast scroll would drag the ball up
-    // mid-bounce and it would be swallowed before the move had played.
+    // Fire the timed entry once the edge has meaningfully risen.
     if (entryT < 0 && d < ENTER_AT) {
-      entryT = 0
+      entryT = isReduced() ? ENTRY_MS : 0
       rSmooth = 0
-      const win = dropWindow.getBoundingClientRect()
-      const rr = win.width * (94 / 600)
-      // Keep the whole skip — ball plus the tallest hop — clear of the cutout
-      // still on screen above, whatever speed the reader arrived at.
-      const floor = Math.max(h * PARK_MIN, win.bottom + rr * (1 + HOPS[0][2]) + 8)
-      parkY = clamp(edge - rr, floor, h * PARK_MAX)
     }
     if (entryT >= 0 && d > REARM_AT) {
       entryT = -1
-      parkY = -1
-      // Drop the eased size too, or scrolling to the bottom and back up
-      // brings the ball back in at the size it had grown to down there.
       rSmooth = 0
     }
 
@@ -254,46 +241,55 @@ export function initFrontier(
     rSmooth = rSmooth === 0 ? rTarget : lerp(rSmooth, rTarget, clamp(dt / GROW_TAU, 0, 1))
     const r = rSmooth
 
-    // Timed: in from the left, skipping along the edge, decelerating to centre.
+    // Timed: in from the left, skipping, decelerating to the centre.
     const p = entryT / ENTRY_MS
     const x = lerp(ENTRY_START_X * w, w * 0.5, easeOut(p))
 
-    // It skips along that fixed line and settles on it. From then on the only
-    // thing that moves is the edge, climbing over it — which is the one part
-    // the reader is meant to drive.
-    const y = parkY - hopHeight(p) * r
+    // The surface it skips along IS the rising edge, so the whole entry moves
+    // up in step with the scroll. Once the edge climbs past SINK_AT the ball
+    // stops riding it and the line keeps going — that is how it goes under.
+    const line = Math.max(edge, h * SINK_AT)
+    const y = line - r - (p < 1 ? hopHeight(p) * r : 0)
     const spin = (x - ENTRY_START_X * w) / r0
+    const under = clamp((y + r - edge) / (2 * r), 0, 1)
+
+    // Fully under, the mesh eases on toward the middle of the dark as the
+    // reader keeps going — it drifts deeper rather than hanging at the seam.
+    const dUnder = SINK_AT - (2 * r) / h
+    const drift = under >= 1 ? smoothstep(clamp((dUnder - d) / DRIFT_SPAN, 0, 1)) : 0
+    const yDraw = lerp(y, h * 0.52, drift)
 
     ctx.clearRect(0, 0, w, h)
 
     // Above the line it is the drawn ball; below it is the mesh. One boundary,
     // two objects — that is what sells it going under.
-    if (edge > y - r) {
+    if (under < 1) {
       ctx.save()
       ctx.beginPath()
       ctx.rect(0, 0, w, Math.max(0, edge))
       ctx.clip()
-      drawBall(x, y, r, spin)
+      drawBall(x, yDraw, r, spin)
       ctx.restore()
     }
-    if (edge < y + r) {
+    if (under > 0.02) {
       ctx.save()
       ctx.beginPath()
       ctx.rect(0, Math.max(0, edge), w, h - Math.max(0, edge))
       ctx.clip()
-      drawMesh(x, y, r, isReduced())
+      drawMesh(x, yDraw, r, isReduced())
       ctx.restore()
     }
 
     if (import.meta.env.DEV) {
       ;(window as unknown as Record<string, unknown>).__frontier = {
         d: +d.toFixed(3),
-        entry: +(entryT / ENTRY_MS).toFixed(3),
+        entry: +p.toFixed(3),
+        under: +under.toFixed(2),
+        drift: +drift.toFixed(2),
         x: Math.round(x),
-        y: Math.round(y),
+        y: Math.round(yDraw),
         r: Math.round(r),
         edge: Math.round(edge),
-        under: +clamp((y + r - edge) / (2 * r), 0, 1).toFixed(2),
       }
     }
   })
