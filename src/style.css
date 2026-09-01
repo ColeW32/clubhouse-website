@@ -18,6 +18,9 @@
   --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.26 0 0 0 0 0.21 0 0 0 0 0.13 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)'/%3E%3C/svg%3E");
   /* slow mottled fiber blotches */
   --grain-mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008' numOctaves='3' stitchTiles='stitch' seed='11'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.17 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23m)'/%3E%3C/svg%3E");
+  /* light fleck + broad shading on the dark masses, matching #ground-tex */
+  --grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch' seed='13'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.94 0 0 0 0 0.9 0 0 0 0 0.8 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23d)'/%3E%3C/svg%3E");
+  --grain-dark-mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='dm'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' stitchTiles='stitch' seed='5'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='700' height='700' filter='url(%23dm)'/%3E%3C/svg%3E");
   /* cool faint grain for the back layer seen through windows */
   --grain-cool: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.35 0 0 0 0 0.4 0 0 0 0 0.48 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)'/%3E%3C/svg%3E");
 }
@@ -247,6 +250,29 @@ body {
   font-weight: 600;
   letter-spacing: 2.5px;
   fill: var(--pencil);
+}
+
+/* ---- The finale: the page's last act is a full-bleed mass of the same
+   material the physical surfaces inside the windows are made of. The ball
+   rolls out onto it and pixelates as it crosses the edge. */
+.frontier {
+  position: relative;
+  min-height: 220vh;
+  background-color: var(--ground);
+  background-image: var(--grain-dark), var(--grain-dark-mottle);
+  /* the paper above ends on a hard edge, the way the ground does in a window */
+  box-shadow: 0 -1px 0 rgba(31, 27, 22, 0.35);
+}
+
+/* The ball rides above the page on its own layer, so it can leave the window
+   and travel across the paper and onto the black. */
+.ball-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
 }
 
 .panel {

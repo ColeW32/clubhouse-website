@@ -5,6 +5,7 @@ import { initDrop } from './drop'
 import { initHero } from './hero'
 import { initSketch } from './sketch'
 import { initTornWindows } from './torn'
+import { initFrontier } from './frontier'
 
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)')
 const isReduced = (): boolean => reducedQuery.matches
@@ -23,6 +24,13 @@ const hero = initHero(heroEl, isReduced)
 const ramp = initRamp(rampWindow, isReduced, isRevealed)
 const drop = initDrop(dropWindow, isReduced)
 const sketch = initSketch(document.getElementById('sketch')!, isReduced)
+
+initFrontier(
+  document.querySelector<HTMLCanvasElement>('[data-ball-canvas]')!,
+  document.getElementById('frontier')!,
+  dropWindow,
+  isReduced,
+)
 
 // The background notes use the same pencil machinery, scoped to each section
 // so they draw on as that section comes up. The hero's cue is not in here —
