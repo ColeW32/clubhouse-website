@@ -100,6 +100,7 @@ export function initFrontier(
   dropWindow: HTMLElement,
   isReduced: () => boolean,
   onTipOff: () => void,
+  dropCleared: () => boolean,
 ): void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -218,8 +219,10 @@ export function initFrontier(
     }
     if (tipped && d > TIP_OFF_AT + 0.03) tipped = false
 
-    // Fire the timed entry once the edge has meaningfully risen.
-    if (entryT < 0 && d < ENTER_AT) {
+    // Fire the timed entry once the edge has meaningfully risen — but never
+    // while the cutout's ball is still on its way out. One ball at a time is
+    // the page's rule; the entry just waits the extra beat if it must.
+    if (entryT < 0 && d < ENTER_AT && dropCleared()) {
       entryT = isReduced() ? ENTRY_MS : 0
       rSmooth = 0
     }

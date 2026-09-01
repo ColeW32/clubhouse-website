@@ -14,7 +14,8 @@ const SETTLE_SPEED = 160 // impacts slower than this settle instead of bouncing
 const CONTACT_MS = 80
 const START_DELAY_MS = 120
 const TOPPLE_VX = 120 // sideways nudge as it leaves the point
-const PERCH_MS = 550 // how long it balances before tipping off on its own
+const PERCH_MS = 420 // how long it balances before tipping off on its own
+const TOPPLE_VY = 320 // it leaves briskly; lingering half-out of the window reads broken
 
 type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'perched' | 'topple' | 'gone'
 
@@ -107,7 +108,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
         perchT += dt * 1000
         if (perchT >= PERCH_MS) {
           vx = -TOPPLE_VX
-          v = 0
+          v = TOPPLE_VY
           mode = 'topple'
         }
       }
@@ -157,7 +158,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
       if (mode === 'topple' || mode === 'gone') return
       // however far through the landing it got, it now tips off and falls
       vx = -TOPPLE_VX
-      v = Math.max(0, v)
+      v = Math.max(TOPPLE_VY, v)
       mode = 'topple'
     },
     hasLeft() {

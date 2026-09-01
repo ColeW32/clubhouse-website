@@ -37,6 +37,9 @@ initFrontier(
   dropWindow,
   isReduced,
   () => drop.release(),
+  // The finale may not put its ball on stage until the cutout's ball is gone
+  // — or the cutout itself is, in which case nobody can see it anyway.
+  () => drop.hasLeft() || dropWindow.getBoundingClientRect().bottom < 0,
 )
 
 // The cascade keeps up with the reader: once the drop window is properly on
