@@ -18,7 +18,8 @@ const BALL_R_FRAC = 94 / 600
 
 const TRAVEL = 0.55 // section-approach progress at which it reaches centre
 const GROWTH = 0.85 // extra radius, as a fraction, at full depth
-const CELLS = 15 // pixels across the diameter
+const CELL_PX = 13 // facet edge, held constant so growth ADDS facets
+const MIN_CELLS = 11
 const SHIMMER_HZ = 0.42 // slow enough to read as glinting, not flickering
 const ROLL_TURN = 4.5 // radians turned across the whole roll-out
 
@@ -72,10 +73,12 @@ export function initFrontier(
   sectionEl: HTMLElement,
   dropWindow: HTMLElement,
   isReduced: () => boolean,
+  onTakeover: () => void,
 ): void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   const dropBall = dropWindow.querySelector<SVGGElement>('[data-ball]')
+  const layer = dropWindow.querySelector<HTMLElement>('.window__layer')
   let w = 0
   let h = 0
   let dpr = 1
@@ -140,12 +143,15 @@ export function initFrontier(
   // their own beat.
   const drawOrb = (x: number, y: number, r: number, alpha: number, still: boolean): void => {
     if (alpha <= 0.002) return
-    const cell = (r * 2) / CELLS
-    const half = CELLS / 2
+    // Facet size is fixed, so a bigger orb is a better-resolved one: it gains
+    // mirrors as it grows instead of turning into coarser blocks.
+    const cells = Math.max(MIN_CELLS, Math.round((r * 2) / CELL_PX))
+    const cell = (r * 2) / cells
+    const half = cells / 2
     ctx.save()
     ctx.globalAlpha = alpha
-    for (let gy = 0; gy < CELLS; gy++) {
-      for (let gx = 0; gx < CELLS; gx++) {
+    for (let gy = 0; gy < cells; gy++) {
+      for (let gx = 0; gx < cells; gx++) {
         // sample at the cell's centre, in unit-sphere space
         const nx = (gx - half + 0.5) / half
         const ny = (gy - half + 0.5) / half
@@ -185,16 +191,31 @@ export function initFrontier(
       hidden = false
       return
     }
-    // From here the ball lives on the canvas, not in the window.
-    if (!hidden && dropBall) dropBall.style.visibility = 'hidden'
-    hidden = true
+    // From here the ball lives on the canvas, not in the window. Settle the
+    // window's scene first: on a fast scroll it may still be mid-bounce, and
+    // the canvas has to pick the ball up where it comes to rest.
+    if (!hidden) {
+      onTakeover()
+      if (dropBall) dropBall.style.visibility = 'hidden'
+      hidden = true
+    }
 
+    // The scene layer is parallax-shifted, so the resting ball is a few px off
+    // the window box. Take that in, or the handoff visibly jumps.
+    const drift = layer ? parseFloat(/translate3d\(0(?:px)?,\s*(-?[\d.]+)px/.exec(layer.style.transform)?.[1] ?? '0') : 0
     const startX = win.left + win.width * BALL_X_FRAC
-    const startY = win.top + win.height * BALL_Y_FRAC
+    const startY = win.top + win.height * BALL_Y_FRAC + drift
     const startR = win.width * BALL_R_FRAC
 
     // Depth: how far we have scrolled through the section once it fills the screen.
     const depth = clamp(-sec.top / Math.max(1, sec.height - h), 0, 1)
+
+    if (isReduced()) {
+      // Hold the finished image rather than scrubbing size and position.
+      ctx.clearRect(0, 0, w, h)
+      drawOrb(w / 2, h / 2, startR * (1 + GROWTH * 0.6), 1, true)
+      return
+    }
 
     const travel = smoothstep(clamp(approach / TRAVEL, 0, 1))
     const x = lerp(startX, w / 2, travel)

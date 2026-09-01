@@ -30,6 +30,7 @@ initFrontier(
   document.getElementById('frontier')!,
   dropWindow,
   isReduced,
+  () => drop.settleNow(),
 )
 
 // The background notes use the same pencil machinery, scoped to each section

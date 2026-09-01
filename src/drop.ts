@@ -17,6 +17,8 @@ const START_DELAY_MS = 120
 type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'done'
 
 export interface DropScene {
+  /** Snap to the settled pose — used when the finale takes the ball over. */
+  settleNow(): void
   setReduced(reduced: boolean): void
 }
 
@@ -113,6 +115,9 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   })
 
   return {
+    settleNow() {
+      if (mode !== 'done') settle()
+    },
     setReduced(reduced) {
       // The last stage: its resting pose is the ball balanced on the point.
       if (reduced && mode !== 'done') settle()

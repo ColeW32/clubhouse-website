@@ -11,6 +11,7 @@
   --house: #22372f;
   --gold: #a8824c;
   --ground: #4c3f2b;
+  --ground-deep: #1e1911;
   --pencil: #a79e8c;
   --pencil-soft: #bcb4a4;
 
@@ -258,7 +259,7 @@ body {
 .frontier {
   position: relative;
   min-height: 220vh;
-  background-color: var(--ground);
+  background-color: var(--ground-deep);
   background-image: var(--grain-dark), var(--grain-dark-mottle);
   /* the paper above ends on a hard edge, the way the ground does in a window */
   box-shadow: 0 -1px 0 rgba(31, 27, 22, 0.35);
