@@ -1,35 +1,66 @@
 import { addTick, clamp } from './ticker'
 
-// The last act, staged against the top edge of the off-black mass as it rises.
-// That edge is a surface, like the slope and the point inside the windows:
+// The last act, staged against the top edge of the off-black mass. That edge
+// is a surface, like the slope and the point inside the cutouts before it.
 //
 //   1. the ball has already dropped out of the second cutout, out of sight
-//   2. as the edge nears mid-screen the ball falls in from the side, bounces
-//      on it, and rolls to the centre
-//   3. as the edge climbs past two thirds, the ball sinks through it
-//   4. whatever is below the edge is drawn as a particle-mesh sphere, so the
-//      ball appears to disappear into the dark and something else emerges —
-//      it is two objects, clipped to either side of the same line
+//   2. when the edge climbs near the middle of the screen it TRIGGERS a short
+//      timed move: the ball comes in low from the left, bounces along the
+//      edge, and rolls to the centre, where it stops
+//   3. from there the ball holds its place while the reader keeps scrolling,
+//      so the rising edge passes over it — that part is tied to the scroll
+//   4. whatever sits below the edge is drawn as a particle-mesh sphere, so
+//      the ball goes under and something else comes out: two objects clipped
+//      to either side of one line
 //
-// Everything is a function of where that edge sits on screen, so it scrubs
-// with the reader rather than playing on a timer.
+// The entry is on a clock rather than scrubbed by scroll because scrubbing a
+// bounce makes it stutter with trackpad momentum. Only the part the reader is
+// meant to feel in control of — going under — follows the scroll.
 
-// Edge position as a fraction of the viewport height, 1 = bottom, 0 = top.
-const TIP_OFF_AT = 0.70 // the cutout ball is told to leave
-const ROLL_FROM = 0.58 // ball drops in from the side
-const ROLL_TO = 0.40 // ...and has reached the centre
-const SINK_FROM = 0.34 // starts going under (edge two thirds up)
-const SINK_TO = 0.08 // fully under
+const TIP_OFF_AT = 0.95 // edge fraction at which the cutout is told to let go
+const ENTER_AT = 0.78 // ...and at which the timed entry fires, low on the screen
+const REARM_AT = 0.88 // scroll back above this and the entry can play again
 
-const GROWTH = 0.55 // extra radius once it is through
+const ENTRY_MS = 1150
+const ENTRY_START_X = -0.04 // just off the left edge, as a fraction of width
+// Where it may come to rest, as fractions of viewport height. It parks on the
+// edge wherever the edge happens to be, held inside this band.
+const PARK_MIN = 0.30
+const PARK_MAX = 0.74
+
+const GROWTH = 0.55
+const GROW_TAU = 0.13 // seconds of smoothing on the scroll-driven size
 const PARTICLES = 260
-const LINK_DIST = 0.42 // mesh links between points closer than this on the unit sphere
-const SPIN_RATE = 0.22 // radians per second
+const LINK_DIST = 0.42
+const SPIN_RATE = 0.22
 
 const TAU = Math.PI * 2
-const smoothstep = (u: number): number => u * u * (3 - 2 * u)
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
-const range = (v: number, from: number, to: number): number => clamp((from - v) / (from - to), 0, 1)
+const easeOut = (t: number): number => 1 - (1 - t) * (1 - t)
+
+// A low skip along the surface: in fast and shallow, settling quickly. Heights
+// are in ball radii above the resting height.
+const HOPS: Array<[number, number, number]> = [
+  // [from, to, height]
+  [0, 0.3, 0.9],
+  [0.3, 0.56, 0.62],
+  [0.56, 0.75, 0.26],
+  [0.75, 0.88, 0.09],
+]
+
+function hopHeight(p: number): number {
+  if (p >= 0.88) return 0
+  // the first segment is a fall, not an arc, so it enters already descending
+  if (p < HOPS[0][1]) {
+    const u = p / HOPS[0][1]
+    return HOPS[0][2] * (1 - u * u)
+  }
+  for (let i = 1; i < HOPS.length; i++) {
+    const [a, b, hgt] = HOPS[i]
+    if (p < b) return hgt * Math.sin(Math.PI * ((p - a) / (b - a)))
+  }
+  return 0
+}
 
 interface P3 {
   x: number
@@ -82,7 +113,10 @@ export function initFrontier(
   let h = 0
   let dpr = 1
   let clock = 0
+  let entryT = -1 // < 0 until the entry is triggered
   let tipped = false
+  let rSmooth = 0
+  let parkY = -1 // frozen once the entry lands, so the edge can rise over it
 
   const resize = (): void => {
     const nw = window.innerWidth
@@ -127,37 +161,32 @@ export function initFrontier(
     ctx.restore()
   }
 
-  // The thing waiting in the dark: a sphere of points, linked into a mesh,
-  // turning slowly. Depth drives both size and brightness so it reads as a
-  // volume rather than a disc.
+  // What waits in the dark: a sphere of points linked into a mesh, turning
+  // slowly. Depth drives size and brightness so it reads as a volume.
   const drawMesh = (x: number, y: number, r: number, still: boolean): void => {
     const a = still ? 0.6 : clock * SPIN_RATE
     const cosA = Math.cos(a)
     const sinA = Math.sin(a)
-    const tilt = 0.32
-    const cosT = Math.cos(tilt)
-    const sinT = Math.sin(tilt)
+    const cosT = Math.cos(0.32)
+    const sinT = Math.sin(0.32)
 
     const sx: number[] = new Array(pts.length)
     const sy: number[] = new Array(pts.length)
     const sd: number[] = new Array(pts.length)
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i]
-      // spin about Y, then tip the axis towards the reader
       const rx = p.x * cosA + p.z * sinA
       const rz = -p.x * sinA + p.z * cosA
-      const ry = p.y * cosT - rz * sinT
-      const rz2 = p.y * sinT + rz * cosT
       sx[i] = x + rx * r
-      sy[i] = y + ry * r
-      sd[i] = (rz2 + 1) / 2 // 0 = far side, 1 = near side
+      sy[i] = y + (p.y * cosT - rz * sinT) * r
+      sd[i] = (p.y * sinT + rz * cosT + 1) / 2 // 0 = far side, 1 = near
     }
 
     ctx.save()
     ctx.lineWidth = Math.max(0.5, r * 0.006)
     for (const [i, j] of links) {
       const d = (sd[i] + sd[j]) / 2
-      ctx.strokeStyle = `rgba(206, 188, 148, ${(0.05 + 0.20 * d * d).toFixed(3)})`
+      ctx.strokeStyle = `rgba(206, 188, 148, ${(0.05 + 0.2 * d * d).toFixed(3)})`
       ctx.beginPath()
       ctx.moveTo(sx[i], sy[i])
       ctx.lineTo(sx[j], sy[j])
@@ -165,7 +194,6 @@ export function initFrontier(
     }
     for (let i = 0; i < pts.length; i++) {
       const d = sd[i]
-      // each point breathes on its own phase, so the mesh never sits still
       const pulse = still ? 0.5 : 0.5 + 0.5 * Math.sin(clock * 1.7 + jitter[i] * TAU)
       const size = Math.max(0.6, r * (0.008 + 0.017 * d) * (0.85 + 0.3 * pulse))
       ctx.fillStyle = `rgba(${Math.round(214 + 32 * d)} ${Math.round(200 + 34 * d)} ${Math.round(166 + 46 * d)} / ${(0.16 + 0.74 * d * d).toFixed(3)})`
@@ -176,63 +204,79 @@ export function initFrontier(
     ctx.restore()
   }
 
-  addTick(() => {
+  addTick((dt) => {
     resize()
-    clock += 1 / 60
+    clock += dt
 
     const sec = sectionEl.getBoundingClientRect()
     const edge = sec.top // the surface, in viewport coordinates
     const d = edge / h // 1 at the bottom of the screen, 0 at the top
 
-    // Tell the cutout to let the ball go well before it is needed here.
+    // Tell the cutout to let its ball go, well before it is wanted here.
     if (!tipped && d < TIP_OFF_AT) {
       onTipOff()
       tipped = true
     }
-    if (tipped && d > TIP_OFF_AT + 0.06) tipped = false
+    if (tipped && d > TIP_OFF_AT + 0.08) tipped = false
 
-    if (d > ROLL_FROM || sec.bottom < 0) {
+    // Fire the timed entry once the edge has climbed far enough up the screen.
+    // Its resting height is fixed right here, at the surface the ball lands
+    // on — if it kept tracking the edge, a fast scroll would drag the ball up
+    // mid-bounce and it would be swallowed before the move had played.
+    if (entryT < 0 && d < ENTER_AT) {
+      entryT = 0
+      rSmooth = 0
+      const win = dropWindow.getBoundingClientRect()
+      const rr = win.width * (94 / 600)
+      // Keep the whole skip — ball plus the tallest hop — clear of the cutout
+      // still on screen above, whatever speed the reader arrived at.
+      const floor = Math.max(h * PARK_MIN, win.bottom + rr * (1 + HOPS[0][2]) + 8)
+      parkY = clamp(edge - rr, floor, h * PARK_MAX)
+    }
+    if (entryT >= 0 && d > REARM_AT) {
+      entryT = -1
+      parkY = -1
+      // Drop the eased size too, or scrolling to the bottom and back up
+      // brings the ball back in at the size it had grown to down there.
+      rSmooth = 0
+    }
+
+    if (entryT < 0 || sec.bottom < 0) {
       ctx.clearRect(0, 0, w, h)
       return
     }
+    entryT = Math.min(entryT + dt * 1000, ENTRY_MS)
 
-    const win = dropWindow.getBoundingClientRect()
-    const r0 = win.width * (94 / 600)
-
-    const roll = smoothstep(range(d, ROLL_FROM, ROLL_TO))
-    const sink = smoothstep(range(d, SINK_FROM, SINK_TO))
+    const r0 = dropWindow.getBoundingClientRect().width * (94 / 600)
     const depth = clamp(-sec.top / Math.max(1, sec.height - h), 0, 1)
-    const r = r0 * (1 + GROWTH * depth)
+    // Ease the scroll-driven size, so momentum scrolling cannot make it pulse.
+    const rTarget = r0 * (1 + GROWTH * depth)
+    rSmooth = rSmooth === 0 ? rTarget : lerp(rSmooth, rTarget, clamp(dt / GROW_TAU, 0, 1))
+    const r = rSmooth
 
-    // Comes in from the left, bounces once on the edge, rolls to the middle.
-    const x = lerp(w * 0.06, w * 0.5, roll)
-    let above = 0 // height of the ball's centre above the edge, before sinking
-    if (roll < 0.45) {
-      const u = roll / 0.45
-      above = r + h * 0.85 * (1 - u * u) // falling in
-    } else if (roll < 0.72) {
-      const u = (roll - 0.45) / 0.27
-      above = r + r * 1.5 * Math.sin(Math.PI * u) // the bounce
-    } else {
-      above = r // rolling along the edge
-    }
+    // Timed: in from the left, skipping along the edge, decelerating to centre.
+    const p = entryT / ENTRY_MS
+    const x = lerp(ENTRY_START_X * w, w * 0.5, easeOut(p))
 
-    // Then it goes under, ending centred on screen well inside the dark.
-    const y = lerp(edge - above, h * 0.5, sink)
-    const spin = (x - w * 0.06) / r0
+    // It skips along that fixed line and settles on it. From then on the only
+    // thing that moves is the edge, climbing over it — which is the one part
+    // the reader is meant to drive.
+    const y = parkY - hopHeight(p) * r
+    const spin = (x - ENTRY_START_X * w) / r0
 
     ctx.clearRect(0, 0, w, h)
 
-    // Above the line it is still the drawn ball; below the line it is the
-    // mesh. Clipping both to the same edge is what sells it going under.
-    ctx.save()
-    ctx.beginPath()
-    ctx.rect(0, 0, w, Math.max(0, edge))
-    ctx.clip()
-    drawBall(x, y, r, spin)
-    ctx.restore()
-
-    if (sink > 0) {
+    // Above the line it is the drawn ball; below it is the mesh. One boundary,
+    // two objects — that is what sells it going under.
+    if (edge > y - r) {
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(0, 0, w, Math.max(0, edge))
+      ctx.clip()
+      drawBall(x, y, r, spin)
+      ctx.restore()
+    }
+    if (edge < y + r) {
       ctx.save()
       ctx.beginPath()
       ctx.rect(0, Math.max(0, edge), w, h - Math.max(0, edge))
@@ -244,13 +288,12 @@ export function initFrontier(
     if (import.meta.env.DEV) {
       ;(window as unknown as Record<string, unknown>).__frontier = {
         d: +d.toFixed(3),
-        roll: +roll.toFixed(3),
-        sink: +sink.toFixed(3),
-        depth: +depth.toFixed(3),
+        entry: +(entryT / ENTRY_MS).toFixed(3),
         x: Math.round(x),
         y: Math.round(y),
         r: Math.round(r),
         edge: Math.round(edge),
+        under: +clamp((y + r - edge) / (2 * r), 0, 1).toFixed(2),
       }
     }
   })
