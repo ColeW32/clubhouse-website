@@ -16,6 +16,7 @@ const START_DELAY_MS = 120
 const TOPPLE_VX = 120 // sideways nudge as it leaves the point
 const PERCH_MS = 420 // how long it balances before tipping off on its own
 const TOPPLE_VY = 320 // it leaves briskly; lingering half-out of the window reads broken
+const HIDE_AFTER_MS = 2000 // hard backstop: this long after first landing, gone for good
 
 type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'perched' | 'topple' | 'gone'
 
@@ -41,6 +42,8 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   let x = BALL_X
   let vx = 0
   let perchT = 0
+  let sinceLand = -1 // ms since the ball first hit the point; < 0 = not yet
+  let hiddenForever = false
 
   const render = (sx: number, sy: number): void => {
     // keep the ball's bottom edge anchored while squashing
@@ -79,6 +82,18 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   }
 
   addTick((dt) => {
+    // Whatever else is going on — mid-bounce, mid-topple, scenes started late
+    // because of scroll order — two seconds after the ball first lands in
+    // this window it is hidden outright and never shown here again.
+    if (sinceLand >= 0 && !hiddenForever && !isReduced()) {
+      sinceLand += dt * 1000
+      if (sinceLand >= HIDE_AFTER_MS) {
+        ball.style.visibility = 'hidden'
+        hiddenForever = true
+        mode = 'gone'
+        return
+      }
+    }
     if (mode === 'idle') {
       visible = visibleRatio(windowEl) >= 0.5
       // Only once the window above has actually let the ball go, so it can
@@ -128,6 +143,7 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
       y += v * dt
       if (y >= REST_Y) {
         y = REST_Y
+        if (sinceLand < 0) sinceLand = 0
         impactSpeed = v
         settling = impactSpeed <= SETTLE_SPEED
         mode = 'contact'
