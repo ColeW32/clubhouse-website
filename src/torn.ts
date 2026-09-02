@@ -120,7 +120,7 @@ export function initTornWindows(): void {
   const defs = document.querySelector('.svg-defs defs')
   if (!defs) return
 
-  document.querySelectorAll<HTMLElement>('.window').forEach((win, i) => {
+  document.querySelectorAll<HTMLElement>('.window, [data-torn]').forEach((win, i) => {
     const id = `torn-${i}`
 
     const clip = document.createElementNS(SVG_NS, 'clipPath')

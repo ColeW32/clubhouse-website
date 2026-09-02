@@ -258,28 +258,30 @@ body {
    rolls out onto it and pixelates as it crosses the edge. */
 .frontier {
   position: relative;
-  min-height: 280vh;
+  min-height: 420vh;
   background-color: var(--ground-deep);
   background-image: var(--grain-dark), var(--grain-dark-mottle);
   /* the paper above ends on a hard edge, the way the ground does in a window */
   box-shadow: 0 -1px 0 rgba(31, 27, 22, 0.35);
 }
 
-/* Pins the closing line to the middle of the screen while the section scrolls;
-   the canvas keeps its particles out of the ellipse this text occupies. */
+/* Pins the finale's centre-stage content while the section scrolls: first the
+   closing line, then the torn-open contact panel. Both live in the same grid
+   cell; the canvas swaps between them. It sits BELOW the ball canvas so the
+   returning ball can roll across the revealed paper. */
 .frontier__hold {
   position: sticky;
   top: 0;
   height: 100vh;
   height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 6;
+  display: grid;
+  place-items: center;
+  z-index: 4;
   pointer-events: none;
 }
 
 .frontier__copy {
+  grid-area: 1 / 1;
   margin: 0;
   padding: 0 clamp(1.25rem, 5vw, 4rem);
   max-width: 21ch;
@@ -292,6 +294,76 @@ body {
   text-wrap: balance;
   color: var(--paper);
   opacity: 0;
+}
+
+/* ---- The peel: the dark tears open in the middle and the original paper is
+   behind it — the page ends on the material it began with. */
+.reveal {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: scale(0.25);
+}
+
+.reveal__paper {
+  position: relative;
+  width: min(680px, 88vw);
+  min-height: clamp(240px, 36vh, 330px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: var(--paper);
+  background-image: var(--grain-fine), var(--grain-mottle);
+  /* the left field is where the ball rolls in and parks against the text */
+  padding: clamp(2.2rem, 4.5vw, 3.4rem) clamp(1.8rem, 4vw, 3rem)
+    clamp(2.4rem, 4.5vw, 3.4rem) clamp(2rem, 27%, 11rem);
+}
+
+/* The dark sheet has thickness: its torn lip shades the paper beneath. */
+.reveal__paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 22px 34px -20px rgba(20, 16, 10, 0.75),
+    inset 0 -16px 28px -20px rgba(20, 16, 10, 0.55),
+    inset 26px 0 40px -30px rgba(20, 16, 10, 0.5),
+    inset -26px 0 40px -30px rgba(20, 16, 10, 0.5);
+}
+
+.reveal__paper .window__edge path {
+  stroke: rgba(31, 27, 22, 0.55);
+}
+
+.reveal__title {
+  margin: 0;
+  max-width: 15ch;
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+}
+
+.reveal__cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.85rem 1.75rem;
+  font-family: var(--sans);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+  background-color: var(--house);
+  border-radius: 10px;
+  text-decoration: none;
+  pointer-events: auto;
+  box-shadow: 0 2px 0 rgba(31, 27, 22, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.reveal__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(20, 16, 10, 0.4);
 }
 
 /* The ball rides above the page on its own layer, so it can leave the window
