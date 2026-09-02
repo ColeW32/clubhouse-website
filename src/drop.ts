@@ -9,13 +9,13 @@ const R = 94
 const REST_Y = APEX_Y - R // settled center y
 const START_Y = -260
 const GRAVITY = 1800
-const RESTITUTION = 0.45
+const RESTITUTION = 0.38
 const SETTLE_SPEED = 160 // impacts slower than this settle instead of bouncing
 const CONTACT_MS = 80
 const START_DELAY_MS = 120
 const TOPPLE_VX = 120 // sideways nudge as it leaves the point
-const PERCH_MS = 420 // how long it balances before tipping off on its own
-const TOPPLE_VY = 320 // it leaves briskly; lingering half-out of the window reads broken
+const PERCH_MS = 260 // how long it balances before tipping off on its own
+const TOPPLE_VY = 380 // it leaves briskly; lingering half-out of the window reads broken
 const HIDE_AFTER_MS = 2000 // hard backstop: this long after first landing, gone for good
 
 type Mode = 'idle' | 'delay' | 'fall' | 'contact' | 'perched' | 'topple' | 'gone'
@@ -172,10 +172,15 @@ export function initDrop(windowEl: HTMLElement, isReduced: () => boolean): DropS
   return {
     release() {
       if (mode === 'topple' || mode === 'gone') return
-      // however far through the landing it got, it now tips off and falls
-      vx = -TOPPLE_VX
-      v = Math.max(TOPPLE_VY, v)
-      mode = 'topple'
+      // Only a settled ball tips off, and only an unseen one falls through.
+      // A scene the reader is watching is never interrupted mid-fall — that
+      // skips the bounce and streaks the ball out the bottom; the perch timer
+      // and the hide backstop dismiss it on their own soon enough.
+      if (mode === 'perched' || (mode === 'idle' && visibleRatio(windowEl) <= 0.05)) {
+        vx = -TOPPLE_VX
+        v = TOPPLE_VY
+        mode = 'topple'
+      }
     },
     hasLeft() {
       return mode === 'gone'
