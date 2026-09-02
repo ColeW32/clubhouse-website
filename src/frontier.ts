@@ -129,7 +129,8 @@ export function initFrontier(
   const copyEl = sectionEl.querySelector<HTMLElement>('[data-frontier-copy]')
   const revealEl = sectionEl.querySelector<HTMLElement>('[data-reveal]')
   const paperEl = sectionEl.querySelector<HTMLElement>('[data-reveal-paper]')
-  const titleEl = sectionEl.querySelector<HTMLElement>('[data-reveal-title]')
+  const coverEl = sectionEl.querySelector<HTMLElement>('[data-reveal-cover]')
+  const ctaEl = sectionEl.querySelector<HTMLElement>('[data-reveal-cta]')
 
   // Where each particle flies when the sphere bursts. The direction comes from
   // the particle's own place on the sphere (with a little jitter), so 3D
@@ -224,8 +225,8 @@ export function initFrontier(
     let ey = rect && rect.height > 0 ? rect.height / 2 + 52 : h * 0.16
     if (peel > 0 && paperEl) {
       const pr = paperEl.getBoundingClientRect()
-      ex = Math.max(ex, pr.width / 2 + 48)
-      ey = Math.max(ey, pr.height / 2 + 44)
+      ex = Math.max(ex, lerp(ex, pr.width / 2 + 48, peel))
+      ey = Math.max(ey, lerp(ey, pr.height / 2 + 44, peel))
     }
     const maxR = 0.62 * Math.hypot(w, h)
 
@@ -287,17 +288,40 @@ export function initFrontier(
     ctx.restore()
   }
 
-  // The homecoming: the drawn ball rolls in across the revealed paper,
-  // raps against the side of the text, and settles resting against it.
-  const drawHomeBall = (q: number): void => {
-    if (!paperEl || !titleEl) return
+  // The ground the last scene stands on: a drawn line running from the torn
+  // left edge to just past the button, so ball and button share a platform.
+  const drawHomeGround = (alpha: number): void => {
+    if (!paperEl || !ctaEl || alpha <= 0.01) return
     const P = paperEl.getBoundingClientRect()
-    const T = titleEl.getBoundingClientRect()
-    if (P.width <= 0) return
+    const C = ctaEl.getBoundingClientRect()
+    if (P.width <= 0 || C.width <= 0) return
+    const gy = C.bottom + 1.5
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(P.left + 5, P.top + 5, P.width - 10, P.height - 10)
+    ctx.clip()
+    ctx.globalAlpha = alpha
+    ctx.strokeStyle = '#22372f'
+    ctx.lineWidth = 2.5
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    ctx.moveTo(P.left + 12, gy)
+    ctx.lineTo(C.right + 14, gy)
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  // The homecoming: the drawn ball rolls in along the platform, raps against
+  // the Contact us button, and settles touching it.
+  const drawHomeBall = (q: number): void => {
+    if (!paperEl || !ctaEl) return
+    const P = paperEl.getBoundingClientRect()
+    const C = ctaEl.getBoundingClientRect()
+    if (P.width <= 0 || C.width <= 0) return
     const r2 = clamp(P.height * 0.17, 26, 60)
-    const floorY = P.bottom - r2 - P.height * 0.14
+    const floorY = C.bottom - r2 // standing on the same line as the button
     const xStart = P.left - r2 * 0.4
-    const xWall = T.left - r2 - 16
+    const xWall = C.left - r2 - 1 // its edge touches the button's edge
     if (xWall <= xStart) return
     const B = Math.min(44, (xWall - xStart) * 0.14)
     let bx: number
@@ -370,11 +394,16 @@ export function initFrontier(
       copyEl.style.transform = `translateY(${((1 - textAlpha) * 14).toFixed(1)}px)`
     }
     if (revealEl) {
-      revealEl.style.opacity = peel.toFixed(3)
-      revealEl.style.transform = `scale(${(0.25 + 0.75 * peel).toFixed(3)})`
+      // The panel does not zoom: it sits at full size under a torn piece of
+      // the dark sheet, and the scroll RIPS that piece off sideways.
+      revealEl.style.opacity = Math.min(1, peel * 5).toFixed(3)
       // While faded out it must not be hit-testable, or an invisible
       // "Contact us" sits in the middle of the burst.
       revealEl.style.visibility = peel > 0.01 ? 'visible' : 'hidden'
+    }
+    if (coverEl && paperEl) {
+      const pw = paperEl.getBoundingClientRect().width
+      coverEl.style.transform = `translateX(${(smoothstep(peel) * (pw + 90)).toFixed(1)}px) rotate(${(peel * 1.2).toFixed(2)}deg)`
     }
 
     // Once the tear is fully open, the ball comes home on its own clock.
@@ -420,6 +449,7 @@ export function initFrontier(
       drawMesh(x, yDraw, r, isReduced(), boom, textAlpha, dissolve, peel)
       ctx.restore()
     }
+    if (peel > 0.55) drawHomeGround(clamp((peel - 0.55) / 0.45, 0, 1))
     if (homeT >= 0) drawHomeBall(homeT / HOME_MS)
 
     if (import.meta.env.DEV) {
