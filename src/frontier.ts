@@ -26,11 +26,19 @@ const ENTRY_START_X = -0.04 // just off the left edge, as a fraction of width
 const SINK_AT = 0.34 // edge fraction where the ball stops riding the line
 const DRIFT_SPAN = 0.3 // edge-fractions over which the mesh eases deeper
 
-const GROWTH = 0.55
+const GROWTH = 1.25
 const GROW_TAU = 0.13 // seconds of smoothing on the scroll-driven size
 const PARTICLES = 260
 const LINK_DIST = 0.42
 const SPIN_RATE = 0.22
+
+// Deep in the section the grown sphere bursts: every particle flies out to a
+// fixed spot spread across the whole screen, links intact, leaving a clear
+// ellipse in the middle for the closing line. All of it scrubs with scroll.
+const BOOM_FROM = 0.24 // depth at which the burst begins (growth ends here)
+const BOOM_SPAN = 0.42 // depth it takes to complete
+const TEXT_AT = 0.55 // burst progress at which the line starts fading in
+const WANDER_PX = 9 // gentle drift of settled particles, so the field lives
 
 const TAU = Math.PI * 2
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
@@ -108,6 +116,20 @@ export function initFrontier(
   const pts = fibonacciSphere(PARTICLES)
   const links = meshLinks(pts, LINK_DIST)
   const jitter = pts.map((_, i) => (Math.sin(i * 91.7) * 43758.5453) % 1)
+  const copyEl = sectionEl.querySelector<HTMLElement>('[data-frontier-copy]')
+
+  // Where each particle flies when the sphere bursts. The direction comes from
+  // the particle's own place on the sphere (with a little jitter), so 3D
+  // neighbours stay 2D neighbours and the link web survives the explosion
+  // instead of turning into chords across the screen.
+  const frac = (v: number): number => v - Math.floor(v)
+  const scatter = pts.map((p, i) => {
+    const h1 = frac(Math.sin(i * 12.9898) * 43758.5453)
+    const h2 = frac(Math.sin(i * 78.233) * 12543.2971)
+    const mag = Math.hypot(p.x, p.y)
+    const angle = mag > 0.25 ? Math.atan2(p.y, p.x) + (h1 - 0.5) * 0.8 : h1 * TAU
+    return { cos: Math.cos(angle), sin: Math.sin(angle), u: Math.pow(h2, 0.65) }
+  })
 
   let w = 0
   let h = 0
@@ -161,13 +183,28 @@ export function initFrontier(
   }
 
   // What waits in the dark: a sphere of points linked into a mesh, turning
-  // slowly. Depth drives size and brightness so it reads as a volume.
-  const drawMesh = (x: number, y: number, r: number, still: boolean): void => {
+  // slowly. Depth drives size and brightness so it reads as a volume. As boom
+  // rises the particles fly out to their scattered spots across the screen —
+  // never inside the exclusion ellipse, which is where the closing line sits.
+  const drawMesh = (
+    x: number,
+    y: number,
+    r: number,
+    still: boolean,
+    boom: number,
+    textAlpha: number,
+  ): void => {
     const a = still ? 0.6 : clock * SPIN_RATE
     const cosA = Math.cos(a)
     const sinA = Math.sin(a)
     const cosT = Math.cos(0.32)
     const sinT = Math.sin(0.32)
+
+    // The clear zone: the copy's box, padded, as an ellipse around centre.
+    const rect = copyEl?.getBoundingClientRect()
+    const ex = rect && rect.width > 0 ? rect.width / 2 + 64 : w * 0.22
+    const ey = rect && rect.height > 0 ? rect.height / 2 + 52 : h * 0.16
+    const maxR = 0.62 * Math.hypot(w, h)
 
     const sx: number[] = new Array(pts.length)
     const sy: number[] = new Array(pts.length)
@@ -176,16 +213,35 @@ export function initFrontier(
       const p = pts[i]
       const rx = p.x * cosA + p.z * sinA
       const rz = -p.x * sinA + p.z * cosA
-      sx[i] = x + rx * r
-      sy[i] = y + (p.y * cosT - rz * sinT) * r
-      sd[i] = (p.y * sinT + rz * cosT + 1) / 2 // 0 = far side, 1 = near
+      let px = x + rx * r
+      let py = y + (p.y * cosT - rz * sinT) * r
+      if (boom > 0) {
+        // radius of the exclusion ellipse along this particle's direction
+        const sc = scatter[i]
+        const er = (ex * ey) / Math.hypot(ey * sc.cos, ex * sc.sin)
+        const dist = er + sc.u * (maxR - er)
+        const wob = still ? 0 : WANDER_PX * boom
+        px = lerp(px, x + sc.cos * dist + Math.sin(clock * 0.5 + jitter[i] * TAU) * wob, boom)
+        py = lerp(py, y + sc.sin * dist + Math.cos(clock * 0.43 + jitter[i] * 7) * wob, boom)
+      }
+      sx[i] = px
+      sy[i] = py
+      // volume shading flattens out as the sphere stops being a sphere
+      sd[i] = lerp((p.y * sinT + rz * cosT + 1) / 2, 0.72, boom)
     }
 
     ctx.save()
     ctx.lineWidth = Math.max(0.5, r * 0.006)
     for (const [i, j] of links) {
+      // once the line is up, no web strand may cross its box
+      if (textAlpha > 0.05) {
+        const mx = (sx[i] + sx[j]) / 2 - x
+        const my = (sy[i] + sy[j]) / 2 - y
+        if ((mx * mx) / (ex * ex) + (my * my) / (ey * ey) < 1.15) continue
+      }
       const d = (sd[i] + sd[j]) / 2
-      ctx.strokeStyle = `rgba(206, 188, 148, ${(0.05 + 0.2 * d * d).toFixed(3)})`
+      const fade = 1 - 0.45 * boom
+      ctx.strokeStyle = `rgba(206, 188, 148, ${((0.05 + 0.2 * d * d) * fade).toFixed(3)})`
       ctx.beginPath()
       ctx.moveTo(sx[i], sy[i])
       ctx.lineTo(sx[j], sy[j])
@@ -194,7 +250,7 @@ export function initFrontier(
     for (let i = 0; i < pts.length; i++) {
       const d = sd[i]
       const pulse = still ? 0.5 : 0.5 + 0.5 * Math.sin(clock * 1.7 + jitter[i] * TAU)
-      const size = Math.max(0.6, r * (0.008 + 0.017 * d) * (0.85 + 0.3 * pulse))
+      const size = Math.max(0.6, r * (0.008 + 0.017 * d) * (0.85 + 0.3 * pulse) * (1 - 0.3 * boom))
       ctx.fillStyle = `rgba(${Math.round(214 + 32 * d)} ${Math.round(200 + 34 * d)} ${Math.round(166 + 46 * d)} / ${(0.16 + 0.74 * d * d).toFixed(3)})`
       ctx.beginPath()
       ctx.arc(sx[i], sy[i], size, 0, TAU)
@@ -239,10 +295,20 @@ export function initFrontier(
 
     const r0 = dropWindow.getBoundingClientRect().width * (94 / 600)
     const depth = clamp(-sec.top / Math.max(1, sec.height - h), 0, 1)
+    // It grows through the first stretch of the dark, then bursts — both
+    // scrubbed by the scroll, both reversible on the way back up.
+    const grow = smoothstep(clamp(depth / BOOM_FROM, 0, 1))
+    const boom = smoothstep(clamp((depth - BOOM_FROM) / BOOM_SPAN, 0, 1))
+    const textAlpha = smoothstep(clamp((boom - TEXT_AT) / (1 - TEXT_AT), 0, 1))
     // Ease the scroll-driven size, so momentum scrolling cannot make it pulse.
-    const rTarget = r0 * (1 + GROWTH * depth)
+    const rTarget = r0 * (1 + GROWTH * grow)
     rSmooth = rSmooth === 0 ? rTarget : lerp(rSmooth, rTarget, clamp(dt / GROW_TAU, 0, 1))
     const r = rSmooth
+
+    if (copyEl) {
+      copyEl.style.opacity = textAlpha.toFixed(3)
+      copyEl.style.transform = `translateY(${((1 - textAlpha) * 14).toFixed(1)}px)`
+    }
 
     // Timed: in from the left, skipping, decelerating to the centre.
     const p = entryT / ENTRY_MS
@@ -279,7 +345,7 @@ export function initFrontier(
       ctx.beginPath()
       ctx.rect(0, Math.max(0, edge), w, h - Math.max(0, edge))
       ctx.clip()
-      drawMesh(x, yDraw, r, isReduced())
+      drawMesh(x, yDraw, r, isReduced(), boom, textAlpha)
       ctx.restore()
     }
 
@@ -289,6 +355,8 @@ export function initFrontier(
         entry: +p.toFixed(3),
         under: +under.toFixed(2),
         drift: +drift.toFixed(2),
+        boom: +boom.toFixed(2),
+        text: +textAlpha.toFixed(2),
         x: Math.round(x),
         y: Math.round(yDraw),
         r: Math.round(r),
