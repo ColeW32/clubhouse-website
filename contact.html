@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact — Clubhouse Media</title>
+    <meta name="description" content="Get in touch with the Clubhouse Media team." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2ecdf'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23b3bfce' stroke-width='2.5'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Plus+Jakarta+Sans:wght@600;700&family=Source+Serif+4:opsz,wght@8..60,400&family=Titillium+Web:wght@600;900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Shared def: the disco ball, same graticule as everywhere else. -->
+    <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <g id="disco-ball">
+          <circle class="disco-shell" r="100" />
+          <line class="disco-line" x1="-69.4" y1="-72" x2="69.4" y2="-72" />
+          <line class="disco-line" x1="-91.65" y1="-40" x2="91.65" y2="-40" />
+          <line class="disco-line" x1="-100" y1="0" x2="100" y2="0" />
+          <line class="disco-line" x1="-91.65" y1="40" x2="91.65" y2="40" />
+          <line class="disco-line" x1="-69.4" y1="72" x2="69.4" y2="72" />
+          <line class="disco-line" x1="0" y1="-100" x2="0" y2="100" />
+          <ellipse class="disco-line" rx="66" ry="100" />
+          <ellipse class="disco-line" rx="33" ry="100" />
+        </g>
+      </defs>
+    </svg>
+
+    <header class="site-top">
+      <a class="site-top__brand" href="/">CLUBHOUSE <span>MEDIA</span></a>
+    </header>
+
+    <main class="contact">
+      <div class="contact__inner">
+        <div class="contact__copy">
+          <h2>Get in <span class="u">touch</span>.</h2>
+          <p class="contact__lede">
+            Tell us what you&rsquo;re advertising and where you want it to go. We read every
+            message and reply to the ones we can help.
+          </p>
+
+          <!-- The ball again, parked on a drawn ground line — the same object
+               the reader just followed down the whole front page. -->
+          <svg class="contact__vignette" viewBox="0 0 320 150" aria-hidden="true">
+            <line class="contact__ground" x1="6" y1="136" x2="284" y2="136" />
+            <use href="#disco-ball" transform="translate(96 90) scale(0.45)" />
+          </svg>
+        </div>
+
+        <form class="card" data-torn id="contact-form" novalidate>
+          <div class="field" data-field>
+            <label class="field__label" for="cf-name">Name</label>
+            <input class="field__input" id="cf-name" name="name" type="text" autocomplete="name" required />
+            <p class="field__error" data-error hidden>Please tell us your name.</p>
+          </div>
+
+          <div class="field" data-field>
+            <label class="field__label" for="cf-email">Email</label>
+            <input class="field__input" id="cf-email" name="email" type="email" autocomplete="email" required />
+            <p class="field__error" data-error hidden>That address doesn&rsquo;t look right.</p>
+          </div>
+
+          <div class="field" data-field>
+            <label class="field__label" for="cf-company">Company <em>(optional)</em></label>
+            <input class="field__input" id="cf-company" name="company" type="text" autocomplete="organization" />
+            <p class="field__error" data-error hidden></p>
+          </div>
+
+          <div class="field" data-field>
+            <label class="field__label" for="cf-message">Message</label>
+            <textarea class="field__input field__input--area" id="cf-message" name="message" rows="5" required></textarea>
+            <p class="field__error" data-error hidden>A few words about what you need.</p>
+          </div>
+
+          <!-- honeypot: humans never see it, bots fill it -->
+          <div class="field field--trap" aria-hidden="true">
+            <label for="cf-website">Website</label>
+            <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button class="btn card__submit" type="submit">Send message</button>
+          <p class="card__status" data-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </main>
+
+    <script type="module" src="/src/contact.ts"></script>
+  </body>
+</html>
