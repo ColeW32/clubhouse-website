@@ -53,6 +53,14 @@
     <main>
       <div class="fold">
         <section class="hero" id="hero">
+          <!-- The rail lives ON the hero sheet, so it lifts away with it:
+               present only in the top act, and no other element moves. -->
+          <nav class="rail" aria-label="Site">
+            <a class="rail__link" href="#portfolio" data-rail="audiences"><span>Audiences</span></a>
+            <a class="rail__link" href="#quality" data-rail="quality"><span>Quality</span></a>
+            <a class="rail__link" href="#frontier" data-rail="intelligence"><span>Intelligence</span></a>
+            <a class="rail__link rail__link--cta" href="/contact.html"><span>Contact</span></a>
+          </nav>
           <div class="hero__lockup">
             <svg class="hero__logo" viewBox="0 96 640 384" role="img" aria-label="Clubhouse Media">
               <path class="hero__house" fill-rule="evenodd" d="M 198 330 L 198 236 L 320 106 L 442 236 L 442 330 Z M 265 330 L 265 245 A 55 55 0 0 1 375 245 L 375 330 Z" />

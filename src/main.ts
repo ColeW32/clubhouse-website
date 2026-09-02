@@ -42,6 +42,31 @@ initFrontier(
   () => drop.hasLeft() || dropWindow.getBoundingClientRect().bottom < 0,
 )
 
+// The rail's targets need computing, not plain anchors: the engage section
+// sits INSIDE the sticky fold, so its document offset is ~0 — a native jump
+// to #portfolio would land back at the top, under the hero. Each act gets
+// the scroll position where it is actually on show, and a smooth glide
+// there plays the scenes on the way past (the relay already copes with
+// being scrolled through quickly).
+const railTarget: Record<string, () => number> = {
+  audiences: () => window.innerHeight * 1.02,
+  quality: () =>
+    document.getElementById('quality')!.getBoundingClientRect().top + window.scrollY,
+  intelligence: () =>
+    document.getElementById('frontier')!.getBoundingClientRect().top +
+    window.scrollY -
+    window.innerHeight * 0.55,
+}
+document.querySelectorAll<HTMLAnchorElement>('.rail__link[data-rail]').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault()
+    window.scrollTo({
+      top: Math.max(0, Math.round(railTarget[link.dataset.rail!]())),
+      behavior: isReduced() ? 'auto' : 'smooth',
+    })
+  })
+})
+
 // The cascade keeps up with the reader: once the drop window is properly on
 // screen, a still-chocked ball rolls itself out rather than waiting for one
 // more scroll gesture. (A reader who flies past entirely is handled by the

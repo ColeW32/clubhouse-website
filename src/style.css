@@ -163,6 +163,106 @@ body {
   background: var(--gold);
 }
 
+/* ---- The rail: a quiet index of the page's acts, on the hero sheet's left
+   edge. Each item is a gold tick and a tracked caps label; on hover the tick
+   extends to full length and turns house-green while the label darkens and
+   steps right a touch — the same restrained motion language as the page. */
+.rail {
+  position: absolute;
+  left: clamp(1.5rem, 4vw, 3.5rem);
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  transform: translateY(-50%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail {
+    animation: rail-in 0.6s ease 0.55s backwards;
+  }
+}
+
+@keyframes rail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+.rail__link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(31, 27, 22, 0.5);
+  transition: color 0.18s ease;
+}
+
+.rail__link::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  flex: none;
+  background: var(--gold);
+  transform: scaleX(0.5);
+  transform-origin: left center;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+    background-color 0.18s ease;
+}
+
+.rail__link span {
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.rail__link:hover,
+.rail__link:focus-visible {
+  color: var(--ink);
+}
+
+.rail__link:hover::before,
+.rail__link:focus-visible::before {
+  transform: scaleX(1);
+  background: var(--house);
+}
+
+.rail__link:hover span,
+.rail__link:focus-visible span {
+  transform: translateX(3px);
+}
+
+.rail__link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+
+/* Contact reads as the rail's one action: full tick and full ink at rest. */
+.rail__link--cta {
+  color: var(--house);
+}
+
+.rail__link--cta::before {
+  transform: scaleX(1);
+}
+
+/* Below the fold's own fallback width the hero centre needs the room. */
+@media (max-width: 900px), (max-height: 500px) {
+  .rail {
+    display: none;
+  }
+}
+
 @media (max-width: 700px) {
   .hero__tagline {
     white-space: normal;
