@@ -1,6 +1,6 @@
 import './style.css'
 import { addTick, startTicker, visibleRatio } from './ticker'
-import { initRamp } from './ramp'
+import { initPortfolio } from './portfolio'
 import { initDrop } from './drop'
 import { initHero } from './hero'
 import { initSketch } from './sketch'
@@ -13,10 +13,10 @@ const isReduced = (): boolean => reducedQuery.matches
 initTornWindows()
 
 const heroEl = document.getElementById('hero')!
-const rampWindow = document.getElementById('window-ramp')!
+const portfolioWindow = document.getElementById('window-portfolio')!
 const dropWindow = document.getElementById('window-drop')!
 
-// The engage section counts as "on show" once the hero sheet has lifted away.
+// The portfolio section counts as "on show" once the hero sheet has lifted away.
 const isRevealed = (): boolean =>
   heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.25
 
@@ -27,7 +27,7 @@ const isAppearing = (): boolean =>
   heroEl.getBoundingClientRect().bottom < window.innerHeight * 0.72
 
 const hero = initHero(heroEl, isReduced)
-const ramp = initRamp(rampWindow, isReduced, isAppearing)
+const portfolio = initPortfolio(portfolioWindow, isReduced, isAppearing)
 const drop = initDrop(dropWindow, isReduced)
 const sketch = initSketch(document.getElementById('sketch')!, isReduced)
 
@@ -42,14 +42,14 @@ initFrontier(
   () => drop.hasLeft() || dropWindow.getBoundingClientRect().bottom < 0,
 )
 
-// The rail's targets need computing, not plain anchors: the engage section
+// The rail's targets need computing, not plain anchors: the portfolio section
 // sits INSIDE the sticky fold, so its document offset is ~0 — a native jump
 // to #portfolio would land back at the top, under the hero. Each act gets
 // the scroll position where it is actually on show, and a smooth glide
 // there plays the scenes on the way past (the relay already copes with
 // being scrolled through quickly).
 const railTarget: Record<string, () => number> = {
-  audiences: () => window.innerHeight * 1.02,
+  portfolio: () => window.innerHeight * 1.02,
   quality: () =>
     document.getElementById('quality')!.getBoundingClientRect().top + window.scrollY,
   intelligence: () =>
@@ -70,9 +70,9 @@ document.querySelectorAll<HTMLAnchorElement>('.rail__link[data-rail]').forEach((
 // The cascade keeps up with the reader: once the drop window is properly on
 // screen, a still-chocked ball rolls itself out rather than waiting for one
 // more scroll gesture. (A reader who flies past entirely is handled by the
-// ramp settling itself when its window leaves the viewport.)
+// portfolio settling itself when its window leaves the viewport.)
 addTick(() => {
-  if (visibleRatio(dropWindow) >= 0.5) ramp.autoRoll()
+  if (visibleRatio(dropWindow) >= 0.5) portfolio.autoRoll()
 })
 
 // The background notes use the same pencil machinery, scoped to each section
@@ -84,14 +84,14 @@ const notes = [document.getElementById('portfolio')!, document.getElementById('q
 
 reducedQuery.addEventListener('change', () => {
   hero.setReduced(isReduced())
-  ramp.setReduced(isReduced())
+  portfolio.setReduced(isReduced())
   drop.setReduced(isReduced())
   sketch.setReduced(isReduced())
   for (const note of notes) note.setReduced(isReduced())
 })
 
 // The wedge slams (and the ball is released) on the first downward scroll
-// while the ramp window is in view. Overscroll rubber-banding is clamped out
+// while the portfolio window is in view. Overscroll rubber-banding is clamped out
 // (Safari drives scrollY negative and the snap-back would read as "down"),
 // and the first scroll event shortly after load is treated as the browser
 // restoring its scroll position rather than a user gesture.
@@ -108,9 +108,9 @@ window.addEventListener(
       sawFirstScroll = true
       if (performance.now() - loadedAt < 500) return
     }
-    // The ramp window sits beneath the hero fold and intersects the viewport
+    // The portfolio window sits beneath the hero fold and intersects the viewport
     // from load, so only count scrolls once the hero sheet has lifted away.
-    if (down && isRevealed()) ramp.onScrollDown()
+    if (down && isRevealed()) portfolio.onScrollDown()
   },
   { passive: true },
 )
@@ -119,7 +119,7 @@ window.addEventListener(
 // Recomputed only on frames after a scroll/resize actually happened, so the
 // idle page does no layout reads.
 const PARALLAX = 0.06
-const layers = [rampWindow, dropWindow].map((w) => ({
+const layers = [portfolioWindow, dropWindow].map((w) => ({
   windowEl: w,
   layer: w.querySelector<HTMLElement>('.window__layer')!,
 }))

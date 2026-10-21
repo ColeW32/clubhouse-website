@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Clubhouse Media</title>
-    <meta name="description" content="High quality audiences that help you redefine ROAS." />
+    <meta name="description" content="Clubhouse Media builds, owns and operates five consumer apps: Survey Club, Cashback Club, Steps Club, Reward Rush and Survey AI. Advertise across all of them, direct to the user, with one partner." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2ecdf'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23b3bfce' stroke-width='2.5'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,6 +25,11 @@
           <ellipse class="disco-line" rx="66" ry="100" />
           <ellipse class="disco-line" rx="33" ry="100" />
         </g>
+        <!-- App icon mask: the store icons are square artwork; this rounds
+             them to the familiar app-tile corner. -->
+        <clipPath id="app-clip" clipPathUnits="objectBoundingBox">
+          <rect width="1" height="1" rx="0.225" ry="0.225" />
+        </clipPath>
         <clipPath id="hero-ball-clip">
           <rect x="-20" y="-20" width="680" height="430" />
         </clipPath>
@@ -56,7 +61,7 @@
           <!-- The rail lives ON the hero sheet, so it lifts away with it:
                present only in the top act, and no other element moves. -->
           <nav class="rail" aria-label="Site">
-            <a class="rail__link" href="#portfolio" data-rail="audiences"><span>Audiences</span></a>
+            <a class="rail__link" href="#portfolio" data-rail="portfolio"><span>Portfolio</span></a>
             <a class="rail__link" href="#quality" data-rail="quality"><span>Quality</span></a>
             <a class="rail__link" href="#frontier" data-rail="intelligence"><span>Intelligence</span></a>
             <a class="rail__link rail__link--cta" href="/contact.html"><span>Contact</span></a>
@@ -78,9 +83,17 @@
               <text class="hero__media" x="326" y="462">MEDIA</text>
             </svg>
             <p class="hero__tagline">
-              <span class="sr-only">High quality audiences that help you redefine ROAS.</span>
-              <span class="hero__tagline-anim" data-tagline aria-hidden="true">High quality audiences that help you redefine <span class="u">ROAS</span>.</span>
+              <span class="sr-only">Your ad, direct to the user, across all five of our apps.</span>
+              <span class="hero__tagline-anim" data-tagline aria-hidden="true">Your ad, direct to the <span class="u">user</span>, across all five of our apps.</span>
             </p>
+            <!-- The portfolio, set out like a row on a phone's home screen. -->
+            <ul class="apps" aria-label="Our apps">
+              <li class="apps__item" data-app><img class="apps__icon" src="/apps/surveyclub.png" alt="" width="56" height="56" /><span class="apps__name">Survey Club</span></li>
+              <li class="apps__item" data-app><img class="apps__icon" src="/apps/cashbackclub.png" alt="" width="56" height="56" /><span class="apps__name">Cashback Club</span></li>
+              <li class="apps__item" data-app><img class="apps__icon" src="/apps/stepsclub.png" alt="" width="56" height="56" /><span class="apps__name">Steps Club</span></li>
+              <li class="apps__item" data-app><img class="apps__icon" src="/apps/rewardrush.png" alt="" width="56" height="56" /><span class="apps__name">Reward Rush</span></li>
+              <li class="apps__item" data-app><img class="apps__icon" src="/apps/surveyai.png" alt="" width="56" height="56" /><span class="apps__name">Survey AI</span></li>
+            </ul>
           </div>
           <div class="note note--hero" aria-hidden="true">
             <svg class="note__mark" width="52" height="104" viewBox="0 0 52 104">
@@ -94,30 +107,57 @@
         </section>
 
         <div class="fold__under">
-          <section class="panel" id="portfolio">
-            <div class="panel__inner">
-              <div class="panel__copy">
-                <h2>Engage <span class="u">audiences</span> across our digital <span class="u">portfolio</span>.</h2>
-                <p>with millions of users on our owned-and-operated apps and websites.</p>
-                <div class="note" aria-hidden="true">
-                  <svg class="note__mark" style="top: 34px; left: 2px" width="150" height="34" viewBox="0 0 150 34">
-                    <path class="note__stroke" data-draw d="M 2 9 C 22 12 42 10 58 13" />
-                    <path class="note__stroke" data-draw d="M 14 24 C 26 26 34 25 46 27" />
-                  </svg>
-                </div>
+          <section class="panel panel--wide" id="portfolio">
+            <div class="panel__inner panel__inner--stack">
+              <div class="panel__copy panel__copy--split">
+                <h2 class="h2--lines"><span>One partner.</span> <span>Five apps.</span> <span>Every user, <span class="u">direct</span>.</span></h2>
+                <p>Survey Club, Cashback Club, Steps Club, Reward Rush and Survey&nbsp;AI are built, owned and operated by Clubhouse. Work with us once and your ad runs across the whole <span class="u">portfolio</span>&nbsp;&mdash; 150,000 monthly active users, with no networks or resellers in&nbsp;between.</p>
               </div>
-              <div class="window" id="window-ramp" aria-hidden="true">
+              <div class="window window--wide" id="window-portfolio" aria-hidden="true">
                 <div class="window__layer">
-                  <svg viewBox="0 0 600 460">
-                    <g transform="translate(500 263.333) rotate(-18.435)">
+                  <svg viewBox="0 0 1200 440">
+                    <!-- The wedge chocks the ball on the ramp, and slams down
+                         into it on the reader's next scroll. -->
+                    <g transform="translate(1135 161) rotate(-18.435)">
                       <g data-wedge>
-                        <polygon class="scene-solid" points="-121,0 -57,0 -89,-64" />
+                        <polygon class="scene-solid" points="-72,0 -34,0 -53,-38" />
                       </g>
                     </g>
-                    <polygon class="scene-fill" points="-100,463.33 700,196.67 700,620 -100,620" />
-                    <line class="scene-stroke" x1="-80" y1="456.67" x2="680" y2="203.33" />
-                    <g data-ball transform="translate(470.28 174.16)">
-                      <use href="#disco-ball" transform="scale(0.94)" />
+                    <!-- Five keys, one per app. Each sinks a touch under the
+                         ball's weight; the ground drawn over them hides the
+                         travel, the same way the wedge vanishes into the ramp. -->
+                    <g class="keys">
+                      <g data-key data-x="366">
+                        <image class="key__icon" href="/apps/surveyclub.png" x="366" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                      </g>
+                      <g data-key data-x="502">
+                        <image class="key__icon" href="/apps/cashbackclub.png" x="502" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                      </g>
+                      <g data-key data-x="638">
+                        <image class="key__icon" href="/apps/stepsclub.png" x="638" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                      </g>
+                      <g data-key data-x="774">
+                        <image class="key__icon" href="/apps/rewardrush.png" x="774" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                      </g>
+                      <g data-key data-x="910">
+                        <image class="key__icon" href="/apps/surveyai.png" x="910" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                      </g>
+                    </g>
+                    <!-- left: the backstop wall; right: the ground under the
+                         keys rising into the ramp. The gap between them is the
+                         hole the ball leaves by. -->
+                    <polygon class="scene-fill" points="-20,126 236,126 236,470 -20,470" />
+                    <polygon class="scene-fill" points="366,316 1030,316 1030,196 1220,132.67 1220,470 366,470" />
+                    <line class="scene-stroke" x1="1030" y1="196" x2="1220" y2="132.67" />
+                    <g class="key__labels">
+                      <text class="key__label" data-key-label x="426" y="372">SURVEY CLUB</text>
+                      <text class="key__label" data-key-label x="562" y="372">CASHBACK CLUB</text>
+                      <text class="key__label" data-key-label x="698" y="372">STEPS CLUB</text>
+                      <text class="key__label" data-key-label x="834" y="372">REWARD RUSH</text>
+                      <text class="key__label" data-key-label x="970" y="372">SURVEY AI</text>
+                    </g>
+                    <g data-ball transform="translate(1500 100)">
+                      <use href="#disco-ball" transform="scale(0.56)" />
                     </g>
                   </svg>
                 </div>
@@ -130,55 +170,41 @@
       <section class="sketch" id="sketch">
         <div class="sketch__inner">
           <svg viewBox="0 0 1200 330" role="img"
-               aria-label="Pencil sketch tracing a product's path out of our owned apps, matched to users likely to convert, and down into the next window.">
+               aria-label="Pencil sketch tracing your ad falling out of the portfolio, having crossed every app, down to the users likely to convert.">
             <!-- The traced flight. Refusals kept deliberately: no numbers in
                  pencil, no charts, no fabricated metrics, nothing marking up
                  the headings, and the pencil never touches a window edge.
-                 The arc is a true parabola still launched at the ramp's own
-                 18.435 degrees, just thrown harder so it clears the same
-                 span in a shallower band; the open circles are equal time
-                 steps, so the widening gaps are honest free fall. -->
+                 The ball leaves the portfolio through the hole at the end of
+                 the keys, so the trace is a plain vertical drop lined up with
+                 that hole and with the next window's point. -->
 
-            <!-- the product being advertised, leaving the first window -->
-            <circle class="pencil" data-draw cx="601" cy="29" r="12" />
-            <path class="pencil pencil--faint" data-draw d="M 601 17.5 L 601 40.5" />
-            <path class="pencil pencil--faint" data-draw d="M 590.6 23 L 611.4 23" />
-            <path class="pencil pencil--faint" data-draw d="M 590.6 35 L 611.4 35" />
-            <path class="pencil pencil--ghost" data-draw d="M 646 28 L 620 28" />
-            <text class="pencil-label" data-fade x="654" y="36">product to advertise</text>
+            <!-- your ad, leaving the portfolio through the hole -->
+            <circle class="pencil" data-draw cx="301" cy="26" r="12" />
+            <path class="pencil pencil--faint" data-draw d="M 301 14.5 L 301 37.5" />
+            <path class="pencil pencil--faint" data-draw d="M 290.6 20 L 311.4 20" />
+            <path class="pencil pencil--faint" data-draw d="M 290.6 32 L 311.4 32" />
+            <text class="pencil-label" data-fade x="116" y="34">your ad</text>
+            <path class="pencil pencil--ghost" data-draw d="M 214 26 L 278 26" />
+            <path class="pencil pencil--ghost" data-draw d="M 266 18 L 280 26 L 266 34" />
 
-            <!-- the flight, falling faster the further it goes -->
+            <!-- straight down: the open circles are equal time steps, so the
+                 widening gaps are honest free fall -->
             <path class="pencil pencil--dashed" data-trail data-dash="14" data-gap="11"
-                  d="M 610 22 Q 545 43.7 480 96.2" />
-            <path class="pencil pencil--faint" data-draw d="M 572.7 46.6 A 12 12 0 1 1 572.7 38.4" />
-            <path class="pencil pencil--faint" data-draw d="M 524.1 75.8 A 12 12 0 1 1 524.1 67.6" />
+                  d="M 301 44 L 301 318" />
+            <path class="pencil pencil--faint" data-draw d="M 309.5 99.5 A 12 12 0 1 1 309.5 82.5" />
+            <path class="pencil pencil--faint" data-draw d="M 309.5 187.5 A 12 12 0 1 1 309.5 170.5" />
+            <path class="pencil pencil--dashed" data-draw d="M 291 302 L 301 320 L 311 302" />
 
-            <!-- the portfolio it passes through -->
-            <text class="pencil-label--caps" data-fade x="40" y="140">OWNED &amp; OPERATED</text>
-            <text class="pencil-label" data-fade x="40" y="174">millions of users</text>
-            <path class="pencil pencil--ghost" data-draw d="M 278 154 L 320 148" />
-            <path class="pencil pencil--ghost" data-draw d="M 302 140 L 324 147 L 303 157" />
-            <path class="pencil" data-draw d="M 277 68 L 418 61" />
-            <path class="pencil" data-draw d="M 413 57 L 408 118" />
-            <path class="pencil" data-draw d="M 418 136 L 288 142" />
-            <path class="pencil" data-draw d="M 285 146 L 280 64" />
-            <path class="pencil" data-draw d="M 324 98 L 486 91" />
-            <path class="pencil" data-draw d="M 481 86 L 476 177" />
-            <path class="pencil" data-draw d="M 486 171 L 338 175" />
-            <path class="pencil" data-draw d="M 331 179 L 326 96" />
-
-            <!-- out from behind the stack, and down into the next window -->
-            <path class="pencil pencil--dashed" data-trail data-dash="14" data-gap="11"
-                  d="M 400.6 172 Q 343.3 235 286 322" />
-            <path class="pencil pencil--faint" data-draw d="M 378.3 215.1 A 12 12 0 1 1 378.3 206.9" />
-            <path class="pencil pencil--faint" data-draw d="M 329.7 278.8 A 12 12 0 1 1 329.7 270.6" />
-            <path class="pencil pencil--dashed" data-draw d="M 289.2 302.6 L 286 322 L 302.6 311.4" />
+            <!-- the portfolio it has just crossed -->
+            <text class="pencil-label--caps" data-fade x="372" y="96">EVERY APP, ONE BUY</text>
+            <text class="pencil-label" data-fade x="372" y="130">no networks, no resellers</text>
+            <path class="pencil pencil--ghost" data-draw d="M 362 108 C 345 104 332 98 322 90" />
 
             <!-- the match, annotated from the margin -->
             <text class="pencil-label--caps" data-fade x="706" y="210">THE MATCH</text>
             <text class="pencil-label" data-fade x="706" y="244">users likely to convert</text>
-            <path class="pencil pencil--ghost" data-draw d="M 694 236 C 596 248 466 252 362 243" />
-            <path class="pencil pencil--ghost" data-draw d="M 384 232 L 356 242 L 382 254" />
+            <path class="pencil pencil--ghost" data-draw d="M 694 236 C 596 248 446 262 330 262" />
+            <path class="pencil pencil--ghost" data-draw d="M 352 251 L 326 262 L 352 273" />
 
           </svg>
         </div>
@@ -198,10 +224,10 @@
           </div>
           <div class="panel__copy">
             <h2>Stop balancing <span class="u">quality</span>. You can have it <span class="u">all</span>.</h2>
-            <p>Clubhouse matches your offer to users likely to convert using proprietary machine learning.</p>
+            <p>Quality is at the center of everything we do. Our users are real people in apps we run ourselves, and proprietary machine learning matches your offer to the ones most likely to convert.</p>
             <div class="note" aria-hidden="true">
               <div class="note__caps" data-fade style="top: 30px">OUR OWN APPS</div>
-              <div class="note__caps" data-fade style="top: 52px; left: 12px">OUR OWN OFFERS PLATFORM</div>
+              <div class="note__caps" data-fade style="top: 52px; left: 12px">OUR OWN USERS</div>
               <svg class="note__mark" style="top: 104px; right: 8px" width="46" height="46" viewBox="0 0 46 46">
                 <circle class="note__stroke" data-draw cx="23" cy="23" r="11" />
                 <path class="note__stroke" data-draw d="M 23 12 L 23 34" />

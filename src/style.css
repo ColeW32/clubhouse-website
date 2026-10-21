@@ -14,6 +14,9 @@
   --ground-deep: #1e1911;
   --pencil: #a79e8c;
   --pencil-soft: #bcb4a4;
+  /* how far the portfolio act stands off the floor of its pinned box; the
+     sketch below subtracts the same amount, so the gap between them holds */
+  --wide-floor: clamp(2.75rem, 14vh - 3.5rem, 10rem);
 
   /* fine warm speckle on the front paper layer */
   --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.26 0 0 0 0 0.21 0 0 0 0 0.13 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)'/%3E%3C/svg%3E");
@@ -71,7 +74,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  /* weighted toward the top, so the app row clears the scroll cue */
+  padding: 2rem 2rem clamp(4.5rem, 13vh, 8rem);
   background-color: var(--hero-paper);
   background-image: var(--grain-fine);
   border-bottom: 1px solid #d9d3c6;
@@ -98,7 +102,7 @@ body {
 }
 
 .hero__logo {
-  width: min(540px, 86vw, 78vh);
+  width: min(520px, 80vw, 56vh);
   height: auto;
   color: var(--house);
   --disco-fill: var(--hero-paper);
@@ -149,6 +153,48 @@ body {
   letter-spacing: -0.015em;
   color: var(--ink);
   white-space: nowrap;
+}
+
+/* ---- The app row: the portfolio on the landing sheet, laid out like a row
+   on a phone's home screen — icon over a short label. The icons are the
+   apps' own store artwork, rounded to the app-tile corner. */
+.apps {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1rem, 2.6vw, 2.1rem);
+  margin: clamp(1.4rem, 3.2vh, 2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.apps__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  will-change: transform;
+}
+
+.apps__icon {
+  display: block;
+  width: clamp(44px, 4.2vw, 58px);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 22.5%;
+  /* a printed tile set down on the sheet: a tight contact shadow and a
+     softer one beneath it, in the house green the hero shadow uses */
+  box-shadow:
+    0 1px 1.5px rgba(34, 55, 47, 0.28),
+    0 6px 14px -6px rgba(34, 55, 47, 0.4);
+}
+
+.apps__name {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: rgba(31, 27, 22, 0.72);
 }
 
 /* JS splits the line into per-character spans and reveals them by
@@ -267,6 +313,16 @@ body {
   .hero__tagline {
     white-space: normal;
     max-width: 30ch;
+    margin-inline: auto;
+    text-wrap: balance;
+  }
+
+  .apps {
+    gap: 0.7rem;
+  }
+
+  .apps__name {
+    font-size: 0.62rem;
   }
 }
 
@@ -282,7 +338,10 @@ body {
      leaves behind is (100vh - window height) / 2. Cancelling that with a
      -50vh term holds the gap at a constant ~24px on any screen, instead of
      it growing with viewport height. */
-  margin: calc(216px - 50vh) 0;
+  /* The portfolio act sits on the floor of its pinned box (see .panel--wide),
+     a fixed distance up from the paper's edge, so only the drop window's
+     half needs the viewport term. */
+  margin: calc(1.5rem - var(--wide-floor)) 0 calc(216px - 50vh);
   pointer-events: none;
 }
 
@@ -524,6 +583,62 @@ body {
   grid-template-columns: 11fr 10fr;
 }
 
+/* ---- The portfolio act: copy across the top, one wide cutout beneath it,
+   standing on the floor of the pinned box rather than centred, so the
+   sketch below can meet it at a fixed gap on any screen height. */
+.panel--wide {
+  align-items: flex-end;
+  padding-top: clamp(2rem, 5vh, 4rem);
+  padding-bottom: var(--wide-floor);
+}
+
+.panel__inner--stack {
+  grid-template-columns: 1fr;
+  gap: clamp(1.6rem, 4vh, 2.6rem);
+}
+
+.panel__copy--split {
+  display: grid;
+  grid-template-columns: 10fr 11fr;
+  gap: clamp(2rem, 8vw, 6.5rem);
+  align-items: end;
+}
+
+/* A headline set as deliberate lines rather than left to the wrap. */
+.h2--lines > span {
+  display: block;
+}
+
+.panel__copy--split p {
+  margin: 0;
+  max-width: 40ch;
+}
+
+.window.window--wide {
+  aspect-ratio: 1200 / 440;
+}
+
+/* App names stamped on the dark ground under each key, faint until the
+   ball has crossed that key — then they stay lit: every app reached. */
+.key__label {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-anchor: middle;
+  fill: var(--paper);
+  opacity: 0.34;
+  transition: opacity 0.35s ease;
+}
+
+.key__label.is-lit {
+  opacity: 0.92;
+}
+
+.key__icon {
+  filter: drop-shadow(0 3px 3px rgba(30, 25, 17, 0.28));
+}
+
 h2 {
   margin: 0;
   font-family: var(--sans);
@@ -757,8 +872,9 @@ h2 {
     height: auto;
   }
 
+  /* relative, not static: the scroll cue is positioned against the sheet */
   .hero {
-    position: static;
+    position: relative;
     height: auto;
     min-height: 92vh;
   }
@@ -781,9 +897,29 @@ h2 {
   }
 
   .panel__inner,
-  .panel--flip .panel__inner {
+  .panel--flip .panel__inner,
+  .panel__copy--split {
     grid-template-columns: 1fr;
     gap: 2.25rem;
+  }
+
+  .panel__copy--split {
+    gap: 1.35rem;
+  }
+
+  .panel--wide {
+    align-items: center;
+  }
+
+  /* The scene is cropped to its working part on narrow screens (portfolio.ts
+     swaps the viewBox), so the app keys stay big enough to read. */
+  .window.window--wide {
+    aspect-ratio: 1000 / 400;
+  }
+
+  /* too small to read at this scale; the hero's app row names them */
+  .key__labels {
+    display: none;
   }
 
   .panel--flip .panel__copy {

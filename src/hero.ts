@@ -5,7 +5,9 @@ import { HERO, releaseBall } from './relay'
 // sways the pendulum, the ball detaches mid-swing, falls, and is swallowed by
 // the clip seam behind the CLUBHOUSE wordmark. The string stays and recoils.
 // Once the ball is gone the scroll cue draws itself in below, picking the
-// fall back up and handing the reader down the page.
+// fall back up and handing the reader down the page. Between the two, the
+// moment the tagline has typed out, the five app icons are set down on the
+// sheet one after another, each dropping a short way and bouncing to rest.
 const PIVOT = { x: 320, y: 190 } // ceiling of the arch cutout
 const REST = { x: 320, y: 255 } // hanging ball center
 const ARM = REST.y - PIVOT.y // pendulum length to ball center
@@ -30,7 +32,23 @@ const CUE_STAGGER_MS = 140
 const CUE_GAP_MS = 140 // beat between the last stroke and the first letter
 const CUE_TYPE_MS = 46
 
+// App row, timed from the moment the tagline finishes typing.
+const APPS_LEAD_MS = 160
+const APPS_STAGGER_MS = 110
+const APP_DROP = 30 // px each icon falls before it lands
+const APP_GRAVITY = 3400 // px/s^2
+const APP_RESTITUTION = 0.32
+const APP_SETTLE = 70 // px/s: slower landings come to rest
+const APP_FADE_MS = 90
+
 const smoothstep = (u: number): number => u * u * (3 - 2 * u)
+
+interface AppIcon {
+  el: HTMLElement
+  y: number // px above its resting place, negative = above
+  v: number
+  state: 'waiting' | 'falling' | 'rest'
+}
 
 type Mode = 'idle' | 'delay' | 'sway' | 'fall' | 'done'
 
@@ -98,6 +116,48 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
   const CUE_TEXT_AT = CUE_LEAD_MS + cueMarks.length * CUE_STAGGER_MS + CUE_GAP_MS
   const CUE_TOTAL = CUE_TEXT_AT + (cueText?.length ?? 0) * CUE_TYPE_MS + 200
 
+  const apps: AppIcon[] = Array.from(heroEl.querySelectorAll<HTMLElement>('[data-app]')).map(
+    (el) => ({ el, y: -APP_DROP, v: 0, state: 'waiting' }),
+  )
+  const APPS_TOTAL = APPS_LEAD_MS + apps.length * APPS_STAGGER_MS + 1200
+  let appsT = -1 // < 0 until the tagline has typed out
+
+  const renderApp = (a: AppIcon, since: number): void => {
+    a.el.style.opacity = String(clamp(since / APP_FADE_MS, 0, 1))
+    a.el.style.transform = a.y === 0 ? '' : `translateY(${a.y.toFixed(1)}px)`
+  }
+
+  const stepApps = (dt: number): void => {
+    appsT += dt * 1000
+    apps.forEach((a, i) => {
+      const since = appsT - (APPS_LEAD_MS + i * APPS_STAGGER_MS)
+      if (a.state === 'rest' || since < 0) return
+      a.state = 'falling'
+      a.v += APP_GRAVITY * dt
+      a.y += a.v * dt
+      if (a.y >= 0) {
+        a.y = 0
+        if (a.v < APP_SETTLE) {
+          a.v = 0
+          a.state = 'rest'
+        } else {
+          a.v = -a.v * APP_RESTITUTION
+        }
+      }
+      renderApp(a, since)
+    })
+  }
+
+  const landApps = (): void => {
+    appsT = APPS_TOTAL
+    for (const a of apps) {
+      a.state = 'rest'
+      a.y = 0
+      a.v = 0
+      renderApp(a, APP_FADE_MS)
+    }
+  }
+
   let mode: Mode = 'idle'
   let t = 0 // ms into the current phase
   let theta = 0 // pendulum angle (radians)
@@ -137,6 +197,7 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
   const finish = (): void => {
     mode = 'done'
     tagline.set(tagline.length)
+    landApps()
     stringG.removeAttribute('transform')
     ballG.setAttribute('transform', `translate(0 ${EXIT_Y})`)
     handOff()
@@ -152,11 +213,13 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
     mode = 'done'
   } else {
     tagline.set(0)
+    for (const a of apps) renderApp(a, 0)
     renderCue(0)
     mode = 'delay'
   }
 
   addTick((dt) => {
+    if (appsT >= 0 && appsT < APPS_TOTAL) stepApps(dt)
     if (cueT >= 0 && cueT < CUE_TOTAL) {
       cueT += dt * 1000
       renderCue(cueT)
@@ -175,6 +238,7 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
     if (mode === 'delay' || mode === 'sway') {
       typeT += dt * 1000
       tagline.set(Math.floor(typeT / TYPE_MS))
+      if (appsT < 0 && typeT >= tagline.length * TYPE_MS) appsT = 0
     }
 
     if (mode === 'delay') {
@@ -204,6 +268,7 @@ export function initHero(heroEl: HTMLElement, isReduced: () => boolean): HeroSce
         releaseAngle = (theta * 180) / Math.PI
         recoilAmp = omega / STRING_FREQ
         tagline.set(tagline.length) // typing is long done by now; make it certain
+        if (appsT < 0) appsT = 0
         mode = 'fall'
         t = 0
         return
