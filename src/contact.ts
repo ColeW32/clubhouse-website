@@ -1,6 +1,7 @@
 import './style.css'
 import { startTicker } from './ticker'
 import { initTornWindows } from './torn'
+import { initFooter } from './footer'
 
 // Where the form goes. With an endpoint set (Formspree, a backend route,
 // anything that accepts JSON POST) the page submits in place and reports
@@ -10,6 +11,7 @@ const FORM_ENDPOINT = ''
 const CONTACT_EMAIL = 'team@clubhousemedia.com' // PLACEHOLDER — set the real address
 
 initTornWindows()
+initFooter()
 startTicker()
 
 const form = document.getElementById('contact-form') as HTMLFormElement | null

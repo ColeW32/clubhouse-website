@@ -6,11 +6,13 @@ import { initHero } from './hero'
 import { initSketch } from './sketch'
 import { initTornWindows } from './torn'
 import { initFrontier } from './frontier'
+import { initFooter } from './footer'
 
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)')
 const isReduced = (): boolean => reducedQuery.matches
 
 initTornWindows()
+initFooter()
 
 const heroEl = document.getElementById('hero')!
 const portfolioWindow = document.getElementById('window-portfolio')!
@@ -57,7 +59,8 @@ const railTarget: Record<string, () => number> = {
     window.scrollY -
     window.innerHeight * 0.55,
 }
-document.querySelectorAll<HTMLAnchorElement>('.rail__link[data-rail]').forEach((link) => {
+// The footer's section links use the same targets.
+document.querySelectorAll<HTMLAnchorElement>('a[data-rail]').forEach((link) => {
   link.addEventListener('click', (e) => {
     e.preventDefault()
     window.scrollTo({
@@ -66,6 +69,22 @@ document.querySelectorAll<HTMLAnchorElement>('.rail__link[data-rail]').forEach((
     })
   })
 })
+
+// Arriving from another page with a section link (/#quality): the native
+// jump would land on the wrong spot for the same reason, so go to the
+// computed target instead. The scenes above it settle themselves as they
+// are scrolled past.
+const hashTarget: Record<string, string> = {
+  '#portfolio': 'portfolio',
+  '#quality': 'quality',
+  '#frontier': 'intelligence',
+}
+const arrivedAt = hashTarget[location.hash]
+if (arrivedAt) {
+  requestAnimationFrame(() =>
+    window.scrollTo({ top: Math.max(0, Math.round(railTarget[arrivedAt]())), behavior: 'auto' }),
+  )
+}
 
 // The cascade keeps up with the reader: once the drop window is properly on
 // screen, a still-chocked ball rolls itself out rather than waiting for one

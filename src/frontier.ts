@@ -49,6 +49,7 @@ const DISSOLVE_SPAN = 0.13
 const PEEL_FROM = 0.68 // depth at which the paper tears open
 const PEEL_SPAN = 0.14
 const HOME_MS = 1400 // the timed roll-in, once the peel has finished
+const FADE_PX = 220 // the star field fades out over this much above the footer
 
 const TAU = Math.PI * 2
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
@@ -431,6 +432,15 @@ export function initFrontier(
 
     ctx.clearRect(0, 0, w, h)
 
+    // The canvas is fixed to the viewport but the scene belongs to this
+    // section: once its bottom edge rises into view (the footer coming up
+    // beneath), nothing may be drawn below it — not the star field, not the
+    // ball.
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(0, 0, w, clamp(sec.bottom, 0, h))
+    ctx.clip()
+
     // Above the line it is the drawn ball; below it is the mesh. One boundary,
     // two objects — that is what sells it going under.
     if (under < 1) {
@@ -451,6 +461,21 @@ export function initFrontier(
     }
     if (peel > 0.55) drawHomeGround(clamp((peel - 0.55) / 0.45, 0, 1))
     if (homeT >= 0) drawHomeBall(homeT / HOME_MS)
+    ctx.restore()
+
+    // ...and the star field thins out toward that edge rather than stopping
+    // on a hard line, so the dark hands over to the footer softly.
+    if (sec.bottom < h + FADE_PX) {
+      const top = sec.bottom - FADE_PX
+      const g = ctx.createLinearGradient(0, top, 0, sec.bottom)
+      g.addColorStop(0, 'rgba(0,0,0,0)')
+      g.addColorStop(1, 'rgba(0,0,0,1)')
+      ctx.save()
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.fillStyle = g
+      ctx.fillRect(0, Math.max(0, top), w, Math.min(h, sec.bottom) - Math.max(0, top))
+      ctx.restore()
+    }
 
     if (import.meta.env.DEV) {
       ;(window as unknown as Record<string, unknown>).__frontier = {

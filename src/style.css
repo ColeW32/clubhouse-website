@@ -1114,3 +1114,225 @@ h2 {
     display: none;
   }
 }
+
+/* ---- Footer: the page ends on the dark ground, so the footer stands on it
+   too — paper-coloured type on the same grained umber as the finale, the
+   apps' own icons as the only colour, and the wordmark set huge and faint
+   along the bottom edge like a stamp pressed into the ground. */
+.footer {
+  position: relative;
+  overflow: hidden;
+  color: var(--paper);
+  background-color: var(--ground-deep);
+  background-image: var(--grain-dark), var(--grain-dark-mottle);
+  padding: clamp(4rem, 9vw, 6.5rem) clamp(1.25rem, 5vw, 4rem) 0;
+  /* a faint lip where the finale's ground ends and the footer's begins */
+  box-shadow: inset 0 1px 0 rgba(242, 236, 223, 0.08);
+}
+
+.footer__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1060px;
+  margin-inline: auto;
+}
+
+.footer__top {
+  display: grid;
+  grid-template-columns: 1.15fr 1.25fr 0.6fr;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.footer__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  color: var(--paper);
+}
+
+.footer__mark {
+  width: 40px;
+  height: auto;
+  fill: currentColor;
+}
+
+/* Titillium is the logo's alone — pinned here, never inherited. */
+.footer__wordmark {
+  font-family: 'Titillium Web', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.footer__wordmark span {
+  font-weight: 600;
+  font-size: 0.78em;
+  letter-spacing: 0.32em;
+  color: var(--gold);
+}
+
+.footer__line {
+  margin: 1.5rem 0 0;
+  max-width: 34ch;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(242, 236, 223, 0.78);
+}
+
+.btn--paper {
+  margin-top: 1.75rem;
+  color: var(--house);
+  background-color: var(--paper);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.btn--paper:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.footer__head {
+  margin: 0 0 1.4rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.footer__apps,
+.footer__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer__apps {
+  display: grid;
+  gap: 1.05rem;
+}
+
+.footer__app {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.footer__icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 22.5%;
+  box-shadow: 0 0 0 1px rgba(242, 236, 223, 0.12);
+}
+
+.footer__app-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.footer__app-name {
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.footer__stores {
+  display: flex;
+  gap: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(242, 236, 223, 0.42);
+}
+
+.footer__stores a,
+.footer__links a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer__stores a {
+  color: rgba(242, 236, 223, 0.6);
+}
+
+.footer__stores a:hover,
+.footer__links a:hover {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.footer__links {
+  display: grid;
+  gap: 0.85rem;
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: rgba(242, 236, 223, 0.78);
+}
+
+.footer a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.footer__base {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(242, 236, 223, 0.14);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(242, 236, 223, 0.5);
+}
+
+.footer__giant {
+  display: block;
+  width: 100%;
+  max-width: 1060px;
+  height: auto;
+  margin: clamp(0.5rem, 2vw, 1.5rem) auto 0;
+  /* sunk into the bottom edge, so only the top of the letters shows */
+  margin-bottom: -2.2%;
+}
+
+.footer__giant text {
+  font-family: 'Titillium Web', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+  font-size: 196px;
+  text-anchor: middle;
+  fill: rgba(242, 236, 223, 0.055);
+}
+
+@media (max-width: 900px) {
+  .footer__top {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer__top {
+    grid-template-columns: 1fr;
+    gap: 2.75rem;
+  }
+}
