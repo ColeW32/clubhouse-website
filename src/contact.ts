@@ -8,7 +8,7 @@ import { initFooter } from './footer'
 // back. Without one it falls back to composing an email in the visitor's
 // own mail app — no infrastructure, nothing pretending to have sent.
 const FORM_ENDPOINT = ''
-const CONTACT_EMAIL = 'team@clubhousemedia.com' // PLACEHOLDER — set the real address
+const CONTACT_EMAIL = 'cole@getsurvey.club'
 
 initTornWindows()
 initFooter()
