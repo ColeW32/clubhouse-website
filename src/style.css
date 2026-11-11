@@ -157,7 +157,7 @@ body {
 
 /* ---- The app row: the portfolio on the landing sheet, laid out like a row
    on a phone's home screen — icon over a short label. The icons are the
-   apps' own store artwork, rounded to the app-tile corner. */
+   apps' own store artwork in umber and kraft, rounded to the app-tile corner. */
 .apps {
   display: flex;
   justify-content: center;
