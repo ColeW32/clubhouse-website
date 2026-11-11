@@ -635,8 +635,20 @@ body {
   opacity: 0.92;
 }
 
-.key__icon {
+/* The shadow sits on the whole key, so the two stacked icon layers inside
+   its rounded tile cast one shadow between them. */
+[data-key] {
   filter: drop-shadow(0 3px 3px rgba(30, 25, 17, 0.28));
+}
+
+/* Each key waits in umber (the #app-duo filter) over its real icon; the
+   ball's press lifts the umber away and the colour stays: every app reached. */
+.key__duo {
+  transition: opacity 0.6s ease-out;
+}
+
+[data-key].is-lit .key__duo {
+  opacity: 0;
 }
 
 h2 {

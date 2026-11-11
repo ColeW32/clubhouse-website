@@ -30,6 +30,17 @@
         <clipPath id="app-clip" clipPathUnits="objectBoundingBox">
           <rect width="1" height="1" rx="0.225" ry="0.225" />
         </clipPath>
+        <!-- App keys in the scene's own palette: the icon's light and dark
+             mapped onto umber and kraft, so the five keys read as part of
+             the ground until the ball presses them into their real colour. -->
+        <filter id="app-duo" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+          <feColorMatrix type="saturate" values="0" />
+          <feComponentTransfer>
+            <feFuncR type="table" tableValues="0.298 0.835" />
+            <feFuncG type="table" tableValues="0.247 0.788" />
+            <feFuncB type="table" tableValues="0.169 0.682" />
+          </feComponentTransfer>
+        </filter>
         <clipPath id="hero-ball-clip">
           <rect x="-20" y="-20" width="680" height="430" />
         </clipPath>
@@ -125,22 +136,39 @@
                     </g>
                     <!-- Five keys, one per app. Each sinks a touch under the
                          ball's weight; the ground drawn over them hides the
-                         travel, the same way the wedge vanishes into the ramp. -->
+                         travel, the same way the wedge vanishes into the ramp.
+                         A key waits in umber and turns to its real colours
+                         the moment the ball presses it. -->
                     <g class="keys">
                       <g data-key data-x="366">
-                        <image class="key__icon" href="/apps/surveyclub.png" x="366" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                        <g class="key__tile" clip-path="url(#app-clip)">
+                          <image href="/apps/surveyclub.png" x="366" y="196" width="120" height="120" />
+                          <image class="key__duo" href="/apps/surveyclub.png" x="366" y="196" width="120" height="120" filter="url(#app-duo)" />
+                        </g>
                       </g>
                       <g data-key data-x="502">
-                        <image class="key__icon" href="/apps/cashbackclub.png" x="502" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                        <g class="key__tile" clip-path="url(#app-clip)">
+                          <image href="/apps/cashbackclub.png" x="502" y="196" width="120" height="120" />
+                          <image class="key__duo" href="/apps/cashbackclub.png" x="502" y="196" width="120" height="120" filter="url(#app-duo)" />
+                        </g>
                       </g>
                       <g data-key data-x="638">
-                        <image class="key__icon" href="/apps/stepsclub.png" x="638" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                        <g class="key__tile" clip-path="url(#app-clip)">
+                          <image href="/apps/stepsclub.png" x="638" y="196" width="120" height="120" />
+                          <image class="key__duo" href="/apps/stepsclub.png" x="638" y="196" width="120" height="120" filter="url(#app-duo)" />
+                        </g>
                       </g>
                       <g data-key data-x="774">
-                        <image class="key__icon" href="/apps/rewardrush.png" x="774" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                        <g class="key__tile" clip-path="url(#app-clip)">
+                          <image href="/apps/rewardrush.png" x="774" y="196" width="120" height="120" />
+                          <image class="key__duo" href="/apps/rewardrush.png" x="774" y="196" width="120" height="120" filter="url(#app-duo)" />
+                        </g>
                       </g>
                       <g data-key data-x="910">
-                        <image class="key__icon" href="/apps/surveyai.png" x="910" y="196" width="120" height="120" clip-path="url(#app-clip)" />
+                        <g class="key__tile" clip-path="url(#app-clip)">
+                          <image href="/apps/surveyai.png" x="910" y="196" width="120" height="120" />
+                          <image class="key__duo" href="/apps/surveyai.png" x="910" y="196" width="120" height="120" filter="url(#app-duo)" />
+                        </g>
                       </g>
                     </g>
                     <!-- left: the backstop wall; right: the ground under the

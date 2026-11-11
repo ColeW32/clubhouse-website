@@ -2,7 +2,8 @@ import { addTick, easeInQuad, scrolledPast, visibleRatio } from './ticker'
 import { RAMP, hasBall, releaseBall } from './relay'
 
 // The portfolio act, in a 1200x440 viewBox. Right to left: a ramp, a row of
-// five app keys, a hole, and a backstop wall. The ball rolls down the ramp and
+// five app keys (umber until pressed, then their real colours), a hole, and a
+// backstop wall. The ball rolls down the ramp and
 // is chocked by the wedge; on the reader's next scroll the wedge slams flush
 // and the ball rolls across every key — one ad, every app — then drops
 // through the hole and out of the cutout, on its way to the next window.
@@ -112,6 +113,7 @@ export function initPortfolio(
   const light = (key: Key): void => {
     if (key.lit) return
     key.lit = true
+    key.el.classList.add('is-lit')
     key.label?.classList.add('is-lit')
   }
 
